@@ -89,6 +89,31 @@ export const ContactPage: React.FC = () => {
     if (serverError) setServerError(null);
   };
 
+  const handleOpenMailClient = () => {
+    const recipient = 'info@njuregroup.in';
+    const cc = 'neerej.suresan.s@gmail.com';
+    const subject = encodeURIComponent(`[Njure Tech Portal] BPO Operations Inquiry - ${formData.name || 'Client'} (${formData.company || 'Direct'})`);
+    const body = encodeURIComponent(`Hello Njure Tech Team,
+
+I would like to request an operations consultation with the following details:
+
+- Full Name: ${formData.name || 'Not provided'}
+- Business Email: ${formData.email || 'Not provided'}
+- Phone: ${formData.phone || 'Not provided'}
+- Company / Organization: ${formData.company || 'Not provided'}
+- Target Service: ${formData.service}
+- Budget Parameter: ${formData.budget}
+- Target Timeline: ${formData.timeline}
+
+Project / Scope Description:
+${formData.message || 'Not provided'}
+
+Thank you,
+${formData.name || 'Client'}
+`);
+    window.location.href = `mailto:${recipient}?cc=${cc}&subject=${subject}&body=${body}`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
@@ -97,70 +122,61 @@ export const ContactPage: React.FC = () => {
     setServerError(null);
 
     try {
-      let response;
-      try {
-        response = await fetch('/api/inquiries', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-          body: JSON.stringify(formData),
-        });
-      } catch (networkErr) {
-        console.warn('Network fetch error, using client fallback:', networkErr);
-        const fallbackId = `NJ-INQ-2026-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-        setSubmittedInquiry({
-          id: fallbackId,
-          name: formData.name.trim(),
-          company: formData.company.trim() || 'Direct Client Account',
-          service: formData.service,
-          budget: formData.budget,
-        });
-        return;
-      }
+      const response = await fetch('/api/inquiries', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-      const text = await response.text();
-      let data: any = {};
-      try {
-        data = text ? JSON.parse(text) : {};
-      } catch (e) {
-        if (text && text.trim().startsWith('<')) {
-          console.warn('Server returned HTML page instead of JSON. Using client fallback confirmation.');
-          const fallbackId = `NJ-INQ-2026-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-          setSubmittedInquiry({
-            id: fallbackId,
-            name: formData.name.trim(),
-            company: formData.company.trim() || 'Direct Client Account',
-            service: formData.service,
-            budget: formData.budget,
-          });
-          return;
+      let data: any = null;
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        try {
+          data = JSON.parse(text);
+        } catch {
+          throw new Error(
+            response.ok
+              ? 'Server returned an invalid response format.'
+              : `Server error (${response.status}): ${response.statusText || 'Unable to process inquiry'}`
+          );
         }
-        throw new Error('Server returned an invalid response format.');
       }
 
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Server rejected inquiry submission.');
+      if (!response.ok || !data?.success) {
+        const errorMsg = data?.message || data?.error || 'Failed to submit inquiry. Please try again.';
+        throw new Error(errorMsg);
       }
 
+      // ONLY display success state and reset form upon verified successful response
       setSubmittedInquiry({
-        id: data.inquiryId,
+        id: data.inquiryId || `NJ-INQ-2026-${Date.now().toString(36).toUpperCase()}`,
         name: formData.name.trim(),
         company: formData.company.trim() || 'Direct Client Account',
         service: formData.service,
         budget: formData.budget,
       });
+
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        company: '',
+        service: 'Customer Support (Voice & Chat)',
+        budget: 'Tailor specifically to my operational budget',
+        timeline: 'Standard onboarding (1–2 weeks)',
+        message: '',
+        honeypot: '',
+      });
+      setClientErrors({});
     } catch (err: any) {
-      console.error('Inquiry transmission failure, using resilient fallback:', err);
-      const fallbackId = `NJ-INQ-2026-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-      setSubmittedInquiry({
-        id: fallbackId,
-        name: formData.name.trim(),
-        company: formData.company.trim() || 'Direct Client Account',
-        service: formData.service,
-        budget: formData.budget,
-      });
+      console.error('Inquiry transmission error:', err);
+      setServerError(err.message || 'Failed to transmit inquiry. Please check your connection or email info@njuregroup.in.');
     } finally {
       setIsSubmitting(false);
     }
@@ -332,12 +348,25 @@ export const ContactPage: React.FC = () => {
                     <div 
                       role="alert" 
                       aria-live="polite" 
-                      className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-800 text-xs flex items-start gap-2.5"
+                      className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-800 text-xs flex flex-col gap-3"
                     >
-                      <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                      <div>
-                        <span className="font-bold block mb-0.5">Submission Notice</span>
-                        <span>{serverError}</span>
+                      <div className="flex items-start gap-2.5">
+                        <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                        <div>
+                          <span className="font-bold block mb-0.5">Submission Notice</span>
+                          <span>{serverError}</span>
+                        </div>
+                      </div>
+                      <div className="pt-2 border-t border-red-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                        <span className="text-[11px] text-red-700">You can dispatch this inquiry directly via your email client:</span>
+                        <button
+                          type="button"
+                          onClick={handleOpenMailClient}
+                          className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-red-700 hover:bg-red-800 text-white rounded text-xs font-semibold shadow-xs transition-colors cursor-pointer w-full sm:w-auto"
+                        >
+                          <Mail className="w-3.5 h-3.5" />
+                          <span>Open Email App with Filled Details</span>
+                        </button>
                       </div>
                     </div>
                   )}
@@ -533,25 +562,38 @@ export const ContactPage: React.FC = () => {
                     </div>
 
                     <div className="pt-2">
-                      <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="w-full sm:w-auto px-8 py-3 text-xs font-bold uppercase tracking-wider text-white bg-blue-700 hover:bg-blue-800 rounded transition-colors shadow-xs cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Transmitting Inquiry...</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>Send Inquiry</span>
-                            <ArrowRight className="w-4 h-4" />
-                          </>
-                        )}
-                      </button>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                        <button
+                          type="submit"
+                          disabled={isSubmitting}
+                          className="w-full sm:w-auto px-8 py-3 text-xs font-bold uppercase tracking-wider text-white bg-blue-700 hover:bg-blue-800 rounded transition-colors shadow-xs cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
+                        >
+                          {isSubmitting ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <span>Transmitting Inquiry...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>Send Inquiry</span>
+                              <ArrowRight className="w-4 h-4" />
+                            </>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={handleOpenMailClient}
+                          title="Open your default email client with your filled form details"
+                          className="w-full sm:w-auto px-5 py-3 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded transition-colors cursor-pointer flex items-center justify-center gap-2"
+                        >
+                          <Mail className="w-4 h-4 text-slate-600" />
+                          <span>Send via Email Client</span>
+                        </button>
+                      </div>
+
                       <p className="text-[11px] text-slate-500 mt-3">
-                        Submissions are securely logged to our operations ledger. For live outbound email dispatch, ensure SMTP credentials are configured in your environment variables.
+                        Submissions are securely logged to our operations database. You can also send directly from your preferred email client at any time.
                       </p>
                     </div>
                   </form>

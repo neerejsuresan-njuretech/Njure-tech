@@ -381,7 +381,8 @@ ${record.message}
     console.error('Error handling inquiry:', error);
     return res.status(500).json({
       success: false,
-      error: 'An internal server error occurred while processing your inquiry. Please email info@njuregroup.in directly.',
+      message: error?.message || 'An internal server error occurred while processing your inquiry. Please email info@njuregroup.in directly.',
+      error: error?.message || 'An internal server error occurred while processing your inquiry.',
     });
   }
 });
@@ -550,9 +551,23 @@ Resume Document Attached:
     console.error('Error handling career application:', error);
     return res.status(500).json({
       success: false,
-      error: 'An internal server error occurred while processing your application. Please email info@njuregroup.in directly with your CV.',
+      message: error?.message || 'An internal server error occurred while processing your application. Please email info@njuregroup.in directly with your CV.',
+      error: error?.message || 'An internal server error occurred while processing your application.',
     });
   }
+});
+
+// -------------------------------------------------------------
+// Global Error Handling Middleware (Guarantees JSON response, prevents HTML errors)
+// -------------------------------------------------------------
+app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  console.error('[GLOBAL EXPRESS ERROR]:', err);
+  const status = typeof err.status === 'number' ? err.status : 500;
+  return res.status(status).json({
+    success: false,
+    message: err.message || 'An internal server error occurred.',
+    error: err.message || 'An internal server error occurred.',
+  });
 });
 
 // -------------------------------------------------------------

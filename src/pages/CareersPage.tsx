@@ -12,7 +12,8 @@ import {
   FileText, 
   Upload, 
   AlertCircle, 
-  Loader2 
+  Loader2,
+  Mail
 } from 'lucide-react';
 import { COMPANY_INFO, CAREER_LISTINGS, CareerItem } from '../data/companyData';
 
@@ -121,6 +122,32 @@ export const CareersPage: React.FC = () => {
     return Object.keys(errors).length === 0;
   };
 
+  const handleOpenMailClient = () => {
+    if (!selectedRole) return;
+    const recipient = 'info@njuregroup.in';
+    const cc = 'neerej.suresan.s@gmail.com';
+    const subject = encodeURIComponent(`[Njure Tech Portal] Job Application: ${applicantName || 'Candidate'} - ${selectedRole.title}`);
+    const body = encodeURIComponent(`Hello Njure Tech Talent Team,
+
+I would like to apply for the position of "${selectedRole.title}". Here are my candidate details:
+
+- Full Name: ${applicantName || 'Not provided'}
+- Email Address: ${applicantEmail || 'Not provided'}
+- Contact Phone: ${applicantPhone || 'Not provided'}
+- Current Location: ${applicantLocation || 'Not provided'}
+- Target Role: ${selectedRole.title} (${selectedRole.location} · ${selectedRole.type})
+- Experience Level: ${applicantExperience}
+- Portfolio / LinkedIn: ${applicantPortfolio || 'Not provided'}
+- Resume Document: ${resumeFile?.name || 'Attached to this email'}
+
+(I have attached my updated resume / CV document to this email message.)
+
+Thank you,
+${applicantName || 'Candidate'}
+`);
+    window.location.href = `mailto:${recipient}?cc=${cc}&subject=${subject}&body=${body}`;
+  };
+
   const handleSubmitApplication = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedRole || !validate()) return;
@@ -143,65 +170,57 @@ export const CareersPage: React.FC = () => {
     }
 
     try {
-      let response;
-      try {
-        response = await fetch('/api/applications', {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-          },
-          body: formData,
-        });
-      } catch (networkErr) {
-        console.warn('Network fetch error, using client fallback for application:', networkErr);
-        const fallbackId = `NJ-APP-2026-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-        setSubmittedApplication({
-          id: fallbackId,
-          name: applicantName.trim(),
-          role: selectedRole.title,
-          fileName: resumeFile?.name || 'Resume.pdf',
-        });
-        return;
-      }
+      const response = await fetch('/api/applications', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+        },
+        body: formData,
+      });
 
-      const text = await response.text();
-      let data: any = {};
-      try {
-        data = text ? JSON.parse(text) : {};
-      } catch (e) {
-        if (text && text.trim().startsWith('<')) {
-          console.warn('Server returned HTML page instead of JSON. Using client fallback confirmation.');
-          const fallbackId = `NJ-APP-2026-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-          setSubmittedApplication({
-            id: fallbackId,
-            name: applicantName.trim(),
-            role: selectedRole.title,
-            fileName: resumeFile?.name || 'Resume.pdf',
-          });
-          return;
+      let data: any = null;
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        try {
+          data = JSON.parse(text);
+        } catch {
+          throw new Error(
+            response.ok
+              ? 'Server returned an invalid response format.'
+              : `Server error (${response.status}): ${response.statusText || 'Unable to process application'}`
+          );
         }
-        throw new Error('Server returned an invalid response format.');
       }
 
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Server rejected application submission.');
+      if (!response.ok || !data?.success) {
+        const errorMsg = data?.message || data?.error || 'Failed to submit application. Please try again.';
+        throw new Error(errorMsg);
       }
 
+      // ONLY display success state and reset form upon verified successful response
       setSubmittedApplication({
-        id: data.applicationId,
+        id: data.applicationId || `NJ-APP-2026-${Date.now().toString(36).toUpperCase()}`,
         name: applicantName.trim(),
         role: selectedRole.title,
         fileName: resumeFile?.name || 'Resume.pdf',
       });
+
+      // Reset form fields
+      setApplicantName('');
+      setApplicantEmail('');
+      setApplicantPhone('');
+      setApplicantLocation('');
+      setApplicantExperience('0-2 Years');
+      setApplicantPortfolio('');
+      setResumeFile(null);
+      setConsent(false);
+      setClientErrors({});
     } catch (err: any) {
-      console.error('Application transmission failure, using resilient fallback:', err);
-      const fallbackId = `NJ-APP-2026-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-      setSubmittedApplication({
-        id: fallbackId,
-        name: applicantName.trim(),
-        role: selectedRole.title,
-        fileName: resumeFile?.name || 'Resume.pdf',
-      });
+      console.error('Application transmission error:', err);
+      setServerError(err.message || 'Failed to submit application. Please check your connection or email info@njuregroup.in directly.');
     } finally {
       setIsSubmitting(false);
     }
@@ -418,9 +437,25 @@ export const CareersPage: React.FC = () => {
                 </div>
 
                 {serverError && (
-                  <div role="alert" className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-800 text-xs flex items-start gap-2">
-                    <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                    <span>{serverError}</span>
+                  <div role="alert" className="mb-4 p-3.5 rounded-lg bg-red-50 border border-red-200 text-red-800 text-xs flex flex-col gap-2.5">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold block mb-0.5">Submission Notice</span>
+                        <span>{serverError}</span>
+                      </div>
+                    </div>
+                    <div className="pt-2 border-t border-red-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <span className="text-[11px] text-red-700">You can dispatch your application directly via email:</span>
+                      <button
+                        type="button"
+                        onClick={handleOpenMailClient}
+                        className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-red-700 hover:bg-red-800 text-white rounded text-xs font-semibold shadow-xs transition-colors cursor-pointer w-full sm:w-auto"
+                      >
+                        <Mail className="w-3.5 h-3.5" />
+                        <span>Open Email App with Details</span>
+                      </button>
+                    </div>
                   </div>
                 )}
 
@@ -601,29 +636,41 @@ export const CareersPage: React.FC = () => {
                     )}
                   </div>
 
-                  <div className="pt-3 flex items-center justify-end gap-3 border-t border-slate-100">
+                  <div className="pt-3 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100">
                     <button
                       type="button"
-                      onClick={() => setSelectedRole(null)}
-                      disabled={isSubmitting}
-                      className="px-4 py-2 text-xs text-slate-600 hover:text-slate-900 cursor-pointer disabled:opacity-50"
+                      onClick={handleOpenMailClient}
+                      title="Open your default email app with candidate details"
+                      className="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded transition-colors cursor-pointer flex items-center gap-1.5"
                     >
-                      Cancel
+                      <Mail className="w-3.5 h-3.5 text-slate-600" />
+                      <span>Send via Email App</span>
                     </button>
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-white bg-blue-700 hover:bg-blue-800 rounded transition-colors cursor-pointer flex items-center gap-2 disabled:opacity-60 shadow-xs"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          <span>Uploading & Transmitting...</span>
-                        </>
-                      ) : (
-                        <span>Submit Application</span>
-                      )}
-                    </button>
+
+                    <div className="flex items-center gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedRole(null)}
+                        disabled={isSubmitting}
+                        className="px-3.5 py-2 text-xs text-slate-600 hover:text-slate-900 cursor-pointer disabled:opacity-50"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white bg-blue-700 hover:bg-blue-800 rounded transition-colors cursor-pointer flex items-center gap-2 disabled:opacity-60 shadow-xs"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            <span>Uploading & Transmitting...</span>
+                          </>
+                        ) : (
+                          <span>Submit Application</span>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </form>
               </div>
