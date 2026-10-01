@@ -160,6 +160,22 @@ const upload = multer({
   fileFilter,
 });
 
+function handleUpload(req: Request, res: Response, next: NextFunction) {
+  upload.single('resume')(req, res, (err: any) => {
+    if (err) {
+      console.error('Multer upload error:', err);
+      let errorMessage = 'Error uploading resume file.';
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        errorMessage = 'Resume file size exceeds the 10MB limit.';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      return res.status(400).json({ success: false, error: errorMessage });
+    }
+    next();
+  });
+}
+
 // Configure Mailer
 const notificationEmail = process.env.NOTIFICATION_EMAIL || 'info@njuregroup.in';
 const fallbackEmail = process.env.NOTIFICATION_FALLBACK_EMAIL || 'neerej.suresan.s@gmail.com';
@@ -351,7 +367,7 @@ ${record.message}
 });
 
 // 3. Careers Application (POST /api/applications)
-app.post('/api/applications', rateLimiter, upload.single('resume'), async (req: Request, res: Response) => {
+app.post('/api/applications', rateLimiter, handleUpload, async (req: Request, res: Response) => {
   try {
     const {
       name,

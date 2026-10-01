@@ -151,7 +151,16 @@ export const CareersPage: React.FC = () => {
         body: formData,
       });
 
-      const data = await response.json();
+      const text = await response.text();
+      let data: any = {};
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch (e) {
+        if (text && text.trim().startsWith('<')) {
+          throw new Error('Server returned an HTML error page. Please try again or email us at info@njuregroup.in.');
+        }
+        throw new Error('Server returned an invalid response format. Please try again.');
+      }
 
       if (!response.ok || !data.success) {
         throw new Error(data.error || 'Server rejected application submission. Please verify your details.');

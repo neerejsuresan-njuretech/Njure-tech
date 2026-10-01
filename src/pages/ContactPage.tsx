@@ -106,7 +106,16 @@ export const ContactPage: React.FC = () => {
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
+      const text = await response.text();
+      let data: any = {};
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch (e) {
+        if (text && text.trim().startsWith('<')) {
+          throw new Error('Server returned an HTML error page. Please try again or email us at info@njuregroup.in.');
+        }
+        throw new Error('Server returned an invalid response format. Please try again.');
+      }
 
       if (!response.ok || !data.success) {
         throw new Error(data.error || 'Server rejected inquiry submission. Please verify your details or email us directly.');
@@ -512,6 +521,9 @@ export const ContactPage: React.FC = () => {
                           </>
                         )}
                       </button>
+                      <p className="text-[11px] text-slate-500 mt-3">
+                        Submissions are securely logged to our operations ledger. For live outbound email dispatch, ensure SMTP credentials are configured in your environment variables.
+                      </p>
                     </div>
                   </form>
                 </div>
