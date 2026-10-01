@@ -17,7 +17,9 @@ import {
   Code,
   DollarSign,
   Lock,
-  Compass
+  Compass,
+  Award,
+  Zap
 } from 'lucide-react';
 import { COMPANY_INFO, BPO_SERVICES, CAREER_LISTINGS, FUTURE_ROADMAP, GENERAL_FAQS } from '../data/companyData';
 
@@ -29,6 +31,7 @@ interface SearchResultItem {
   keywords: string[];
   targetPath: string;
   icon: React.ReactNode;
+  isPrimaryService?: boolean;
 }
 
 interface GlobalSearchModalProps {
@@ -47,51 +50,74 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsContainerRef = useRef<HTMLDivElement>(null);
 
-  // Comprehensive index of all indexable pages and topic entities
+  // Comprehensive index of all indexable pages and topic entities with rich keyword mappings
   const searchIndex: SearchResultItem[] = useMemo(() => [
     // 1. Core Dedicated BPO Services
     {
       id: 'srv-support',
-      title: 'Omnichannel Customer Support (Voice, Chat & Email)',
+      title: 'Omnichannel Customer Support (Voice, Chat, Email & WhatsApp)',
       category: 'Service',
       description: 'Dedicated 24/7 helpdesk specialists managing live chat, telephone, and email support with sub-2 minute SLAs.',
-      keywords: ['customer support', 'voice', 'chat', 'call center', 'whatsapp', 'zendesk', 'freshdesk', 'helpdesk', 'inbound', 'ticketing', 'outsourcing', 'sla'],
+      keywords: [
+        'customer support', 'voice support', 'chat support', 'call center', 'whatsapp', 'zendesk', 'freshdesk', 
+        'helpdesk', 'inbound', 'ticketing', 'outsourcing', 'sla', 'customer service', 'omnichannel', 'bpo', 
+        'customer care', 'tier 1', 'tier 2', 'fcr', 'csat', '24/7 support', 'live chat', 'phone support'
+      ],
       targetPath: '/services/customer-support',
       icon: <Headphones className="w-4 h-4 text-blue-600" />,
+      isPrimaryService: true,
     },
     {
       id: 'srv-backoffice',
-      title: 'Back-Office Operations & Data Processing',
+      title: 'Back-Office Operations & Data Processing (KYC & Catalogs)',
       category: 'Service',
       description: 'KYC document verification, spreadsheet cleanup, invoice audits, catalog indexing, and dual-pass 99.5%+ accurate data operations.',
-      keywords: ['back office', 'data entry', 'kyc', 'verification', 'invoice audit', 'spreadsheet', 'excel', 'reconciliation', 'catalog', 'data processing'],
+      keywords: [
+        'back office', 'data entry', 'kyc', 'kyc verification', 'invoice audit', 'spreadsheet', 'excel', 
+        'reconciliation', 'catalog', 'data processing', 'data operations', 'transcription', 'dual pass', 
+        'accuracy', 'document verification', 'bpo', 'accounts payable', 'data management'
+      ],
       targetPath: '/services/back-office',
       icon: <Database className="w-4 h-4 text-blue-600" />,
+      isPrimaryService: true,
     },
     {
       id: 'srv-ecommerce',
-      title: 'E-Commerce Order Support & RTO Reduction',
+      title: 'E-Commerce Order Support & RTO Reduction (COD & NDR Calling)',
       category: 'Service',
       description: 'Cash-on-Delivery (COD) phone confirmations, Non-Delivery Report (NDR) triage, RTO reduction by 25%–35%, and Shopify logistics.',
-      keywords: ['ecommerce', 'cod', 'cash on delivery', 'rto', 'ndr', 'shopify', 'returns', 'tracking', 'courier', 'fulfillment', 'shiprocket', 'clickpost'],
+      keywords: [
+        'ecommerce', 'e-commerce', 'cod', 'cash on delivery', 'rto', 'rto reduction', 'ndr', 'ndr calling', 
+        'shopify', 'returns', 'tracking', 'courier', 'fulfillment', 'shiprocket', 'clickpost', 'd2c', 
+        'order confirmation', '3pl', 'marketplace', 'amazon seller', 'wooCommerce', 'delivery exceptions'
+      ],
       targetPath: '/services/ecommerce-support',
       icon: <ShoppingBag className="w-4 h-4 text-blue-600" />,
+      isPrimaryService: true,
     },
     {
       id: 'srv-telecalling',
-      title: 'Telecalling Services & Inbound Lead Qualification',
+      title: 'Telecalling Services & Inbound Lead Qualification (Speed-to-Lead)',
       category: 'Service',
       description: 'Rapid inbound lead follow-up within 10 minutes, discovery meeting scheduling on AE calendars, and customer survey calling.',
-      keywords: ['telecalling', 'lead qualification', 'outbound', 'appointment booking', 'sales call', 'survey', 'cold calling', 'hubspot', 'speed to lead'],
+      keywords: [
+        'telecalling', 'lead qualification', 'outbound', 'inbound leads', 'appointment booking', 'sales call', 
+        'survey', 'cold calling', 'hubspot', 'speed to lead', 'discovery calls', 'telemarketing', 'nps', 
+        'zoho crm', 'leadsquared', 'sales pipeline', 'qualification', 'bant'
+      ],
       targetPath: '/services/telecalling',
       icon: <PhoneCall className="w-4 h-4 text-blue-600" />,
+      isPrimaryService: true,
     },
     {
       id: 'srv-hub',
-      title: 'BPO Services Overview & Directory',
+      title: 'BPO Services Overview & Complete Capabilities Directory',
       category: 'Service',
-      description: 'Comprehensive directory of all 4 active BPO operational capabilities and onboarding SLAs.',
-      keywords: ['services', 'bpo', 'catalog', 'offerings', 'overview', 'all services'],
+      description: 'Directory of all 4 active BPO operational capabilities, SLAs, and client-budget scoping methodology.',
+      keywords: [
+        'services', 'bpo', 'bpo services', 'catalog', 'offerings', 'overview', 'all services', 
+        'business process outsourcing', 'outsourcing partner', 'capabilities', 'scoping'
+      ],
       targetPath: '/services',
       icon: <Compass className="w-4 h-4 text-blue-600" />,
     },
@@ -102,7 +128,10 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
       title: 'Security by Design, Endpoint Policies & NDAs',
       category: 'Security & Trust',
       description: 'Transparent disclosure: port lockdown policies, client-controlled SSO/MFA, bilateral NDAs, and clean-desk governance.',
-      keywords: ['security', 'iso', 'soc', 'soc 2', 'iso 27001', 'nda', 'endpoint', 'lockdown', 'mfa', 'sso', 'compliance', 'clean desk', 'privacy', 'confidentiality'],
+      keywords: [
+        'security', 'iso', 'soc', 'soc 2', 'iso 27001', 'nda', 'endpoint', 'lockdown', 'mfa', 'sso', 
+        'compliance', 'clean desk', 'privacy', 'confidentiality', 'data protection', 'vpn', 'trust', 'governance'
+      ],
       targetPath: '/security',
       icon: <ShieldCheck className="w-4 h-4 text-emerald-600" />,
     },
@@ -110,10 +139,13 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
     // 3. Remote Operations & Delivery Architecture
     {
       id: 'infra-remote',
-      title: '100% Remote Operations Model & Shift Coverage',
+      title: '100% Remote Operations Model & Shift Coverage (24/7)',
       category: 'Operations',
       description: 'Distributed cloud helpdesks, 24/7 follow-the-sun shift handovers, zero real estate overhead, and home power backup standards.',
-      keywords: ['operations', 'remote', 'distributed', 'infrastructure', 'shifts', '24/7', 'broadband', 'ups', 'follow the sun', 'cloud'],
+      keywords: [
+        'operations', 'remote', 'distributed', 'infrastructure', 'shifts', '24/7', 'broadband', 
+        'ups', 'follow the sun', 'cloud', 'delivery center', 'wfh', 'remote team', 'kerala', 'india'
+      ],
       targetPath: '/operations',
       icon: <Server className="w-4 h-4 text-indigo-600" />,
     },
@@ -121,19 +153,25 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
     // 4. About & Partner Model
     {
       id: 'about-model',
-      title: 'About Njure Tech & Zero-Cut Partner Model',
+      title: 'About Njure Tech & The Zero-Cut Partner BPO Model',
       category: 'About & Tech',
       description: 'Company heritage, Njure Group parent entity, client-budget orientation, and profit-sharing remote specialist structure.',
-      keywords: ['about', 'njure group', 'story', 'heritage', 'zero cut', 'profit sharing', 'budget', 'partner', 'company', 'origins'],
+      keywords: [
+        'about', 'njure group', 'njure tech', 'story', 'heritage', 'zero cut', 'profit sharing', 
+        'budget', 'partner', 'company', 'origins', 'philosophy', 'client budget', 'transparent'
+      ],
       targetPath: '/about',
       icon: <Compass className="w-4 h-4 text-slate-700" />,
     },
     {
       id: 'tech-roadmap',
-      title: 'Digital Engineering & Automation Roadmap',
+      title: 'Digital Engineering & Workflow Automation Roadmap',
       category: 'About & Tech',
       description: 'Custom React client portals, CRM webhook sync pipelines, and AI copilot tools grounded in front-line operational data.',
-      keywords: ['technology', 'roadmap', 'react', 'software', 'automation', 'api', 'copilot', 'engineering', 'future tech'],
+      keywords: [
+        'technology', 'roadmap', 'react', 'software', 'automation', 'api', 'copilot', 
+        'engineering', 'future tech', 'custom portal', 'dashboard', 'webhooks'
+      ],
       targetPath: '/technology',
       icon: <Sparkles className="w-4 h-4 text-purple-600" />,
     },
@@ -141,10 +179,13 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
     // 5. Careers
     ...CAREER_LISTINGS.map((role) => ({
       id: `career-${role.id}`,
-      title: `Career: ${role.title}`,
+      title: `Remote Career: ${role.title}`,
       category: 'Career' as const,
       description: `${role.type} · ${role.experience} · 100% Remote across India with profit-sharing partnership.`,
-      keywords: ['career', 'job', 'hiring', 'remote job', 'work from home', 'apply', 'fresher', role.title.toLowerCase()],
+      keywords: [
+        'career', 'job', 'hiring', 'remote job', 'work from home', 'apply', 'fresher', 
+        'salary', 'vacancy', 'opening', 'recruitment', role.title.toLowerCase()
+      ],
       targetPath: '/careers',
       icon: <Briefcase className="w-4 h-4 text-amber-600" />,
     })),
@@ -152,23 +193,26 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
     // 6. Contact & Proposals
     {
       id: 'contact-rfq',
-      title: 'Contact Us & Request Budget Proposal',
+      title: 'Contact Operations Desk & Request Budget-Oriented Proposal',
       category: 'Contact',
       description: 'Direct consultation with our operations desk. Scoped strictly around your monthly operational budget with zero agency cut.',
-      keywords: ['contact', 'email', 'proposal', 'rfq', 'quote', 'pricing', 'hire', 'get in touch', 'info@njuregroup.in'],
+      keywords: [
+        'contact', 'email', 'proposal', 'rfq', 'quote', 'pricing', 'hire', 'get in touch', 
+        'info@njuregroup.in', 'request quote', 'hire bpo', 'cost', 'rates'
+      ],
       targetPath: '/contact',
       icon: <Mail className="w-4 h-4 text-blue-700" />,
     },
   ], []);
 
-  // Filter and rank search results
+  // Filter and rank search results with high-precision scoring algorithm
   const results = useMemo(() => {
     if (!query.trim()) {
       return searchIndex.slice(0, 8); // Default popular suggestions
     }
 
     const cleanQuery = query.toLowerCase().trim();
-    const queryTokens = cleanQuery.split(/\s+/);
+    const queryTokens = cleanQuery.split(/\s+/).filter(Boolean);
 
     return searchIndex
       .map((item) => {
@@ -176,24 +220,39 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
         const titleLower = item.title.toLowerCase();
         const descLower = item.description.toLowerCase();
 
-        // Exact title match
-        if (titleLower === cleanQuery) score += 100;
-        else if (titleLower.includes(cleanQuery)) score += 50;
+        // 1. Exact title match -> Supreme Boost (+200)
+        if (titleLower === cleanQuery) {
+          score += 200;
+        } else if (titleLower.startsWith(cleanQuery)) {
+          score += 120;
+        } else if (titleLower.includes(cleanQuery)) {
+          score += 80;
+        }
 
-        // Keyword matches
+        // 2. Exact keyword matches -> High Boost (+60)
         item.keywords.forEach((kw) => {
-          if (kw === cleanQuery) score += 40;
-          else if (kw.includes(cleanQuery)) score += 20;
+          if (kw === cleanQuery) {
+            score += 60;
+          } else if (kw.startsWith(cleanQuery)) {
+            score += 35;
+          } else if (kw.includes(cleanQuery)) {
+            score += 20;
+          }
         });
 
-        // Token match
+        // 3. Token-by-token scoring
         queryTokens.forEach((token) => {
-          if (titleLower.includes(token)) score += 15;
-          if (descLower.includes(token)) score += 5;
+          if (titleLower.includes(token)) score += 25;
+          if (descLower.includes(token)) score += 10;
           item.keywords.forEach((kw) => {
-            if (kw.includes(token)) score += 10;
+            if (kw.includes(token)) score += 15;
           });
         });
+
+        // 4. Primary service slight bonus for direct commercial intent
+        if (item.isPrimaryService && (cleanQuery.includes('bpo') || cleanQuery.includes('support') || cleanQuery.includes('service'))) {
+          score += 20;
+        }
 
         return { item, score };
       })
@@ -269,7 +328,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search BPO services, security controls, SLAs, tech roadmap, or careers..."
+            placeholder="Search BPO services, customer support, KYC, COD, security, or careers..."
             className="flex-grow bg-transparent text-sm text-slate-900 placeholder-slate-400 focus:outline-none"
             aria-autocomplete="list"
             aria-controls="search-results-list"
@@ -303,6 +362,8 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
           {results.length > 0 ? (
             results.map((item, index) => {
               const isSelected = index === selectedIndex;
+              const isTopRanked = index === 0 && query.trim().length > 0;
+
               return (
                 <div
                   key={item.id}
@@ -310,7 +371,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                   aria-selected={isSelected}
                   onMouseEnter={() => setSelectedIndex(index)}
                   onClick={() => handleSelect(item)}
-                  className={`p-3 rounded-lg flex items-start gap-3 cursor-pointer transition-colors ${
+                  className={`p-3 rounded-lg flex items-start gap-3 cursor-pointer transition-colors relative ${
                     isSelected ? 'bg-blue-50/80 text-blue-900' : 'hover:bg-slate-50 text-slate-700'
                   }`}
                 >
@@ -321,13 +382,19 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                   </div>
 
                   <div className="flex-grow min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
+                    <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                       <span className="font-semibold text-xs text-slate-900 truncate">
                         {item.title}
                       </span>
                       <span className="text-[10px] px-1.5 py-0.2 rounded font-mono font-medium bg-slate-100 text-slate-600 border border-slate-200">
                         {item.category}
                       </span>
+                      {isTopRanked && (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.2 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded">
+                          <Zap className="w-2.5 h-2.5" />
+                          <span>#1 Top Result</span>
+                        </span>
+                      )}
                     </div>
                     <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
                       {item.description}
@@ -344,7 +411,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
             <div className="py-12 text-center text-slate-400">
               <Search className="w-8 h-8 mx-auto mb-2 text-slate-300 stroke-[1.5]" />
               <p className="text-xs font-semibold text-slate-600">No results found for "{query}"</p>
-              <p className="text-[11px] text-slate-400 mt-1">Try searching for "support", "kyc", "cod", "security", "jsm", or "careers".</p>
+              <p className="text-[11px] text-slate-400 mt-1">Try searching for "customer support", "kyc", "cod", "security", "telecalling", or "careers".</p>
             </div>
           )}
         </div>
@@ -355,7 +422,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
             <span><kbd className="font-mono bg-white border border-slate-200 px-1 py-0.5 rounded text-[10px]">↑</kbd> <kbd className="font-mono bg-white border border-slate-200 px-1 py-0.5 rounded text-[10px]">↓</kbd> Navigate</span>
             <span><kbd className="font-mono bg-white border border-slate-200 px-1 py-0.5 rounded text-[10px]">↵</kbd> Select</span>
           </div>
-          <span>Direct indexed pages & services</span>
+          <span className="font-medium text-slate-600">Instant #1 Rank Scoring Engine</span>
         </div>
       </div>
     </div>
