@@ -116,11 +116,11 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
     },
     {
       id: 'faq-security',
-      title: 'Real Governance Over Badges (ISO/SOC Standards)',
+      title: 'Security by Design & Operational Controls (ISO/SOC Disclosure)',
       category: 'Enterprise FAQ',
-      description: 'We may not buy paper ISO or SOC badges, but we follow and enforce data protection, port-locks, and bilateral NDAs better than corporates.',
-      keywords: ['iso', 'soc', 'certification', 'security', 'nda', 'confidentiality', 'clean desk', 'data protection', 'usb block', 'sso', 'compliance', 'corporates'],
-      targetPage: 'delivery-center',
+      description: 'Njure Tech is currently not ISO 27001 or SOC 2 certified. Our operating controls include endpoint policies, clean-desk practices, NDAs, and client SSO custody.',
+      keywords: ['security', 'iso', 'soc', 'certification', 'controls', 'nda', 'confidentiality', 'clean desk', 'data protection', 'usb block', 'sso', 'compliance'],
+      targetPage: 'operations',
       icon: <ShieldCheck className="w-4 h-4 text-emerald-600" />,
     },
     {
@@ -292,9 +292,20 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
   }, [query]);
 
   const handleSelect = (item: SearchResultItem) => {
-    onNavigate(item.targetPage);
+    const PAGE_PATH_MAP: Record<string, string> = {
+      'home': '/',
+      'about': '/about',
+      'services': '/services',
+      'future-tech': '/technology',
+      'technology': '/technology',
+      'delivery-center': '/operations',
+      'operations': '/operations',
+      'careers': '/careers',
+      'contact': '/contact',
+    };
+    const targetPath = PAGE_PATH_MAP[item.targetPage] || `/${item.targetPage}`;
+    onNavigate(targetPath);
     onClose();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (!isOpen) return null;

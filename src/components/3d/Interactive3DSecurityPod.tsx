@@ -10,7 +10,7 @@ interface SecurityLayer {
   color: string;
   position: [number, number, number];
   headline: string;
-  corporateContrast: string;
+  technicalSpecification: string;
   njureStandard: string;
 }
 
@@ -22,42 +22,42 @@ const SECURITY_LAYERS: SecurityLayer[] = [
     icon: Lock,
     color: '#00c2ff',
     position: [0, -0.5, 3.2],
-    headline: 'Physical Disabling of External Mass Storage & Data Export Busses',
-    corporateContrast: 'Corporate BPOs have hundreds of rotating temp agents on open machines with USB ports glued or bypassed with personal phones.',
-    njureStandard: 'BIOS-level and OS-policy hardware lockdowns disable all mass storage buses. Workstations operate in strictly monitored endpoint environments.'
+    headline: 'Endpoint Isolation & Restricted External Storage',
+    technicalSpecification: 'Workstation endpoints are configured with mass storage bus restrictions, preventing unauthorized local data exports or USB flash drive connections.',
+    njureStandard: 'Operating system policies enforce endpoint restrictions. Workstations operate in strictly monitored environments with clean-screen compliance.'
   },
   {
     id: 'sso-custody',
-    title: 'Client-Revocable SSO & MFA',
+    title: 'Client-Controlled Identity (SSO / MFA)',
     badge: 'Identity Custody',
     icon: Key,
     color: '#38bdf8',
     position: [-3.2, 1.2, 0],
     headline: 'Zero Credential Holding — Clients Retain 100% Identity Sovereignty',
-    corporateContrast: 'Legacy agencies create shared internal logins, storing client passwords in unmanaged team spreadsheets.',
-    njureStandard: 'Specialists log in directly through your Okta, Google Workspace, or Azure SSO with MFA. You can terminate access instantly with a single click.'
+    technicalSpecification: 'All operational accounts are provisioned directly within client identity providers (Google Workspace, Okta, Microsoft Entra) under least-privilege roles.',
+    njureStandard: 'Specialists log in through your mandated MFA requirements. Your administrative team retains real-time access logs and immediate one-click revocation authority.'
   },
   {
     id: 'ephemeral-session',
     title: 'Ephemeral Browser Session',
-    badge: 'Zero Local Storage',
+    badge: 'Zero Local Persistence',
     icon: EyeOff,
     color: '#00e5ff',
     position: [0, 2.8, 0],
-    headline: 'In-Memory Client Workspace with Zero Local Hard-Drive Persistence',
-    corporateContrast: 'Agents download customer CSVs, invoices, and sensitive PII to local download folders with zero automated scrubbing.',
-    njureStandard: 'All customer data stays inside your web browser sandbox (Zendesk, Shopify, CRM). Hard-drive writes are disabled and sessions auto-flush.'
+    headline: 'Cloud-Confined Workspace with Zero Local Storage',
+    technicalSpecification: 'Customer support ticketing, data entry, and CRM operations run strictly inside authenticated browser sessions without saving local records.',
+    njureStandard: 'All customer data remains inside your cloud infrastructure (Zendesk, Shopify, HubSpot). Browser sessions terminate securely upon shift completion.'
   },
   {
     id: 'partner-accountability',
-    title: 'Bilateral Legal NDA & Co-Ownership',
-    badge: 'Human Governance',
+    title: 'Bilateral Legal NDA & Governance',
+    badge: 'Governance & Quality',
     icon: FileText,
     color: '#10b981',
     position: [3.2, 1.2, 0],
-    headline: 'Enforceable Confidentiality Anchored by Profit-Sharing Partners',
-    corporateContrast: 'High-attrition corporate call centers (60–80% annual churn) hire transient workers who feel zero personal stake in client security.',
-    njureStandard: 'Every Njure Tech specialist is an equity profit-sharing business partner who personally signs enforceable legal non-disclosure covenants.'
+    headline: 'Enforceable Confidentiality & Supervisor Quality Controls',
+    technicalSpecification: 'Every remote specialist executes bilateral non-disclosure agreements prior to onboarding. Daily standups ensure procedural adherence.',
+    njureStandard: 'Operations leads perform queue spot-checks, call audits, and shift synchronization to ensure standard operating procedure (SOP) compliance.'
   }
 ];
 
@@ -389,15 +389,15 @@ export const Interactive3DSecurityPod: React.FC<{ className?: string }> = ({ cla
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm">
-            <div className="p-3.5 rounded-lg bg-red-950/20 border border-red-900/30 space-y-1">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-red-400 font-semibold block">
-                The Corporate Call Center Flaw
+            <div className="p-3.5 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-blue-400 font-semibold block">
+                Operating Protocol & Specification
               </span>
-              <p className="text-slate-300 leading-relaxed">{selectedLayer.corporateContrast}</p>
+              <p className="text-slate-300 leading-relaxed">{selectedLayer.technicalSpecification}</p>
             </div>
             <div className="p-3.5 rounded-lg bg-blue-950/30 border border-cyan-800/40 space-y-1">
               <span className="text-[11px] font-mono uppercase tracking-wider text-cyan-400 font-semibold block">
-                Njure Tech Reality Standard
+                Implemented Operating Control
               </span>
               <p className="text-slate-200 leading-relaxed font-medium">{selectedLayer.njureStandard}</p>
             </div>

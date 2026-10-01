@@ -20,10 +20,10 @@ import { COMPANY_INFO } from '../data/companyData';
 import { Interactive3DSecurityPod } from '../components/3d/Interactive3DSecurityPod';
 
 interface DeliveryCenterPageProps {
-  onNavigate: (page: string) => void;
+  onNavigate?: (page: string) => void;
 }
 
-export const DeliveryCenterPage: React.FC<DeliveryCenterPageProps> = ({ onNavigate }) => {
+export const DeliveryCenterPage: React.FC<DeliveryCenterPageProps> = () => {
   return (
     <div className="bg-slate-50 py-12 lg:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -133,58 +133,61 @@ export const DeliveryCenterPage: React.FC<DeliveryCenterPageProps> = ({ onNaviga
           </div>
         </div>
 
-        {/* Real Governance Over Corporate Paper Badges */}
+        {/* Security by Design & Implemented Operating Controls */}
         <div className="bg-slate-900 text-white p-8 sm:p-10 rounded-lg border border-slate-800 mb-16">
           <div className="max-w-3xl mb-8">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold mb-3">
-              <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-              <span>Operational Integrity & Data Security</span>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-blue-500/10 border border-blue-500/30 text-blue-300 text-xs font-semibold mb-3">
+              <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
+              <span>Security by Design</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-3">
-              We May Not Be Certified by ISO or SOC — But We Follow Everything Better Than Corporates
+              Security by Design & Operational Controls
             </h2>
+            <div className="p-3.5 rounded-lg bg-slate-800/80 border border-slate-700 text-xs text-slate-300 mb-4 font-mono">
+              <strong>Transparency Disclosure:</strong> Njure Tech is currently not ISO 27001 or SOC 2 certified.
+            </div>
             <p className="text-sm text-slate-300 leading-relaxed">
-              We are radically transparent: we don’t buy expensive corporate certification badges to tick boxes on paper. Instead, we enforce practical operational security, endpoint lockdowns, and process discipline far better than bureaucratic call centers—without passing badge markups to your invoice.
+              Our operating controls include appropriate access restrictions, endpoint policies, clean-desk practices, NDAs, client-controlled identity access, and supervisor-level quality controls. Client-specific security and compliance requirements are reviewed during onboarding before production access is granted.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="p-6 rounded-lg bg-slate-800/80 border border-slate-700">
-              <div className="text-rose-400 text-xs font-mono uppercase font-bold tracking-wider mb-2">
-                Typical Corporate BPO Reality
+              <div className="text-cyan-400 text-xs font-mono uppercase font-bold tracking-wider mb-3">
+                Implemented Operating Controls
               </div>
-              <ul className="space-y-2.5 text-xs text-slate-300">
-                <li className="flex items-start gap-2">
-                  <span className="text-rose-400 font-bold shrink-0 mt-0.5">✕</span>
-                  <span>Tens of thousands spent annually on paper ISO/SOC badges purely for sales decks.</span>
+              <ul className="space-y-3 text-xs text-slate-300">
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+                  <span><strong>Endpoint Policies & Port Lockdown:</strong> Workstations configured with restricted external mass storage and clean-screen standards.</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-rose-400 font-bold shrink-0 mt-0.5">✕</span>
-                  <span>Massive 60%–80% frontline staff attrition where unmotivated workers treat client data carelessly.</span>
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+                  <span><strong>Client-Controlled Identity (SSO / MFA):</strong> Role-based credentials managed directly by you with instant revocation custody.</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-rose-400 font-bold shrink-0 mt-0.5">✕</span>
-                  <span>Compliance overhead, audit fees, and bureaucratic administration passed directly onto client rates.</span>
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+                  <span><strong>Bilateral Enforceable NDAs:</strong> Comprehensive non-disclosure agreements executed with every specialist prior to account induction.</span>
                 </li>
               </ul>
             </div>
 
-            <div className="p-6 rounded-lg bg-emerald-950/40 border border-emerald-800/60">
-              <div className="text-emerald-400 text-xs font-mono uppercase font-bold tracking-wider mb-2">
-                Njure Tech Operational Standard
+            <div className="p-6 rounded-lg bg-slate-800/80 border border-slate-700">
+              <div className="text-cyan-400 text-xs font-mono uppercase font-bold tracking-wider mb-3">
+                Quality & Compliance Governance
               </div>
-              <ul className="space-y-2.5 text-xs text-slate-200">
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span><strong>Port & USB Lockdown:</strong> Blocked external storage, zero data extraction, and clean-screen enforcement.</span>
+              <ul className="space-y-3 text-xs text-slate-300">
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+                  <span><strong>Supervisor Quality Oversight:</strong> Operations leads conduct daily queue monitoring, call listening audits, and shift synchronization.</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span><strong>Business Partner Co-Ownership:</strong> Our specialists share in the profit, taking personal responsibility for client reputation and zero leaks.</span>
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+                  <span><strong>Onboarding Security Review:</strong> Client-specific security, data-handling, and compliance needs are reviewed and validated before production access.</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span><strong>Client-Controlled Access:</strong> Role-based SSO and MFA with instant one-click credential revocation directly in your custody.</span>
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+                  <span><strong>Partner Co-Ownership:</strong> Our specialists share directly in project profits, fostering authentic personal accountability.</span>
                 </li>
               </ul>
             </div>

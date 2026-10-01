@@ -3,11 +3,25 @@ import { Building, MapPin, Target, ShieldCheck, HeartHandshake, Award, Globe, Co
 import { COMPANY_INFO } from '../data/companyData';
 import { Logo } from '../components/Logo';
 
+import { useNavigate } from 'react-router-dom';
+
 interface AboutPageProps {
-  onNavigate: (page: string) => void;
+  onNavigate?: (page: string) => void;
 }
 
 export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
+  const navigate = useNavigate();
+
+  const handleNav = (target: string) => {
+    if (onNavigate) onNavigate(target);
+    const PATH_MAP: Record<string, string> = {
+      'contact': '/contact',
+      'services': '/services',
+      'home': '/',
+    };
+    navigate(PATH_MAP[target] || (target.startsWith('/') ? target : `/${target}`));
+  };
+
   const { backgroundStory } = COMPANY_INFO;
 
   return (
@@ -115,7 +129,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
                 We onboard dedicated customer service and back-office agents in as fast as 7 business days.
               </p>
               <button
-                onClick={() => onNavigate('contact')}
+                onClick={() => handleNav('contact')}
                 className="w-full text-center py-2 px-4 bg-blue-700 hover:bg-blue-800 text-white font-semibold rounded-md transition-colors cursor-pointer"
               >
                 Inquire With Our Team
@@ -157,9 +171,9 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
 
             <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-2xs">
               <ShieldCheck className="w-6 h-6 text-blue-700 mb-3" />
-              <h3 className="text-base font-bold text-slate-900 mb-1">True Operational Security</h3>
+              <h3 className="text-base font-bold text-slate-900 mb-1">Security by Design</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                We may not buy paper ISO/SOC badges, but we enforce port-locks, clean-desk rules, and bilateral NDAs better than corporates.
+                Njure Tech is currently not ISO 27001 or SOC 2 certified. We enforce practical operating controls including endpoint port restrictions, bilateral NDAs, and client-controlled identity access.
               </p>
             </div>
           </div>

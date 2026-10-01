@@ -64,35 +64,41 @@ export const COMPANY_INFO = {
     ],
   },
   governanceManifesto: {
-    badge: 'Operational Integrity & Security',
-    headline: 'We May Not Be Certified by ISO or SOC — But We Follow Everything Better Than Corporates',
+    badge: 'Security by Design',
+    headline: 'Security by Design & Transparent Operating Controls',
+    certificationNotice: 'Njure Tech is currently not ISO 27001 or SOC 2 certified.',
     subheadline:
-      'We don’t buy expensive corporate badges just to tick compliance checkboxes. We enforce endpoint security, clean-desk standards, and supervisor audits that surpass legacy corporate call centers—without passing badge costs to you.',
+      'Our operating controls include appropriate access restrictions, endpoint policies, clean-desk practices, NDAs, client-controlled identity access, and supervisor-level quality controls. Client-specific security and compliance requirements are reviewed during onboarding before production access is granted.',
     points: [
       {
-        title: 'Zero Corporate Badge Theater',
+        title: 'Clear Certification Transparency',
         description:
-          'Corporates spend tens of thousands maintaining ISO or SOC certificates for marketing while frontline agents churn at 70%. We eliminate the bureaucracy and focus on airtight frontline execution.',
+          'Njure Tech is currently not ISO 27001 or SOC 2 certified. We communicate our operational posture transparently so clients can evaluate alignment with their specific compliance frameworks.',
       },
       {
-        title: 'Strict Workstation & USB Lockdown',
+        title: 'Endpoint Access Restrictions & Port Policies',
         description:
-          'Port-restricted machines, blocked external storage devices, domain whitelisting, and strict clean-screen policies ensure customer records cannot be downloaded or transferred.',
+          'Workstations operate under endpoint policies that restrict external mass storage devices, enforce application whitelisting, and maintain clean-screen standards.',
       },
       {
-        title: 'Client-Controlled SSO & MFA',
+        title: 'Client-Controlled Identity & Access (SSO / MFA)',
         description:
-          'Our specialists log directly into your systems via least-privilege role accounts. You manage credentials, enforce two-factor authentication, and can revoke access instantly.',
+          'Specialists access client systems directly via role-based credentials managed by your organization, supporting multi-factor authentication (MFA) and instant revocation.',
       },
       {
-        title: 'Bilateral Legally Binding NDAs',
+        title: 'Bilateral Legally Enforceable NDAs',
         description:
-          'Every remote specialist signs comprehensive non-disclosure agreements before undergoing system onboarding or answering a single customer inquiry.',
+          'Every remote specialist executes comprehensive, legally binding non-disclosure agreements prior to onboarding and accessing client workflows.',
       },
       {
-        title: 'Co-Owner Responsibility & Care',
+        title: 'Supervisor-Level Quality Controls & Daily Standups',
         description:
-          'Because our team members are business partners who share in the profit, they have genuine personal stake in protecting your brand reputation, accuracy, and client trust.',
+          'Operational supervisors perform queue monitoring, call listening audits, and shift synchronization to ensure standard operating procedure (SOP) adherence.',
+      },
+      {
+        title: 'Onboarding Security Review',
+        description:
+          'Client-specific security, data-handling, and compliance requirements are reviewed and confirmed during onboarding before production access is granted.',
       },
     ],
   },

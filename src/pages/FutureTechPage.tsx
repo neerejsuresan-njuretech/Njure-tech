@@ -3,11 +3,24 @@ import { FUTURE_ROADMAP, COMPANY_INFO } from '../data/companyData';
 import { InteractivePipeline3D } from '../components/3d/InteractivePipeline3D';
 import { TiltCard } from '../components/motion/TiltCard';
 
+import { useNavigate } from 'react-router-dom';
+
 interface FutureTechPageProps {
-  onNavigate: (page: string) => void;
+  onNavigate?: (page: string) => void;
 }
 
 export const FutureTechPage: React.FC<FutureTechPageProps> = ({ onNavigate }) => {
+  const navigate = useNavigate();
+
+  const handleNav = (target: string) => {
+    if (onNavigate) onNavigate(target);
+    const PATH_MAP: Record<string, string> = {
+      'services': '/services',
+      'contact': '/contact',
+      'home': '/',
+    };
+    navigate(PATH_MAP[target] || (target.startsWith('/') ? target : `/${target}`));
+  };
   return (
     <div className="bg-slate-50 py-12 lg:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -106,7 +119,7 @@ export const FutureTechPage: React.FC<FutureTechPageProps> = ({ onNavigate }) =>
             </p>
           </div>
           <button
-            onClick={() => onNavigate('services')}
+            onClick={() => handleNav('services')}
             className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white bg-blue-700 hover:bg-blue-800 rounded-md transition-colors cursor-pointer shrink-0"
           >
             <span>View Active BPO Services</span>

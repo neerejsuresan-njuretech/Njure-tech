@@ -1,32 +1,33 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, ArrowRight, Globe, Headphones, Search } from 'lucide-react';
 import { COMPANY_INFO } from '../data/companyData';
 import { Logo } from './Logo';
 import { GlobalSearchModal } from './GlobalSearchModal';
 
-interface NavbarProps {
-  currentPage: string;
-  onNavigate: (page: string) => void;
-}
-
-export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
+export const Navbar: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const currentPath = location.pathname.endsWith('/') && location.pathname !== '/'
+    ? location.pathname.slice(0, -1)
+    : location.pathname;
 
   const navItems = [
-    { id: 'home', label: 'Home' },
-    { id: 'about', label: 'About Us' },
-    { id: 'services', label: 'BPO Services' },
-    { id: 'future-tech', label: 'Tech Roadmap' },
-    { id: 'delivery-center', label: 'Remote Operations' },
-    { id: 'careers', label: 'Careers (Remote)' },
-    { id: 'contact', label: 'Contact Us' },
+    { path: '/', label: 'Home' },
+    { path: '/about', label: 'About Us' },
+    { path: '/services', label: 'BPO Services' },
+    { path: '/technology', label: 'Tech Roadmap' },
+    { path: '/operations', label: 'Remote Operations' },
+    { path: '/careers', label: 'Careers (Remote)' },
+    { path: '/contact', label: 'Contact Us' },
   ];
 
   // Global keyboard shortcut: Ctrl+K, Cmd+K, or pressing "/" opens search
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      // Don't intercept if user is currently typing in an input or textarea
       const target = e.target as HTMLElement;
       const isInput = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA');
 
@@ -43,16 +44,19 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, []);
 
-  const handleNav = (id: string) => {
-    onNavigate(id);
+  const handleMobileLinkClick = () => {
     setMobileOpen(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSearchNavigate = (path: string) => {
+    setSearchOpen(false);
+    navigate(path);
   };
 
   return (
     <>
       <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-xs">
-        {/* Top minimal corporate capability bar */}
+        {/* Top corporate capability bar */}
         <div className="bg-slate-900 text-slate-300 text-xs py-1.5 px-4 hidden md:block">
           <div className="max-w-7xl mx-auto flex justify-between items-center">
             <div className="flex items-center gap-3">
@@ -83,39 +87,42 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
         {/* Main Navbar */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20 sm:h-24">
-            {/* Prominent, High-Resolution Enlarged Brand Logo */}
-            <button
-              onClick={() => handleNav('home')}
-              className="flex items-center focus:outline-none cursor-pointer py-1 group"
+            {/* Brand Logo */}
+            <Link
+              to="/"
+              className="flex items-center focus:outline-none py-1 group"
               aria-label="Njure Tech Home"
             >
               <Logo size="md" />
-            </button>
+            </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden xl:flex items-center gap-6">
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => handleNav(item.id)}
-                  className={`text-sm font-medium transition-colors cursor-pointer py-1 relative ${
-                    currentPage === item.id
-                      ? 'text-blue-700 font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-700'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
+            {/* Desktop Navigation Links */}
+            <nav className="hidden xl:flex items-center gap-6" aria-label="Main Navigation">
+              {navItems.map((item) => {
+                const isActive = currentPath === item.path;
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`text-sm font-medium transition-colors py-1 relative ${
+                      isActive
+                        ? 'text-blue-700 font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-700'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
             </nav>
 
-            {/* Global Search & Action CTA */}
+            {/* Quick Search & Request Proposal CTA */}
             <div className="hidden sm:flex items-center gap-3">
-              {/* Quick Search Trigger Button */}
               <button
                 onClick={() => setSearchOpen(true)}
                 className="flex items-center gap-2.5 px-3 py-2 text-xs text-slate-500 bg-slate-100 hover:bg-slate-200/80 border border-slate-200 rounded-lg transition-colors cursor-pointer"
                 title="Search services, careers, FAQs (Ctrl+K)"
+                aria-label="Open search dialog"
               >
                 <Search className="w-3.5 h-3.5 text-slate-500" />
                 <span className="hidden md:inline font-medium">Search...</span>
@@ -124,13 +131,13 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
                 </kbd>
               </button>
 
-              <button
-                onClick={() => handleNav('contact')}
+              <Link
+                to="/contact"
                 className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-white bg-blue-700 hover:bg-blue-800 rounded-md transition-colors shadow-xs cursor-pointer shrink-0"
               >
                 <span>Request a Proposal</span>
                 <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+              </Link>
             </div>
 
             {/* Mobile Actions */}
@@ -138,15 +145,16 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
               <button
                 onClick={() => setSearchOpen(true)}
                 className="p-2 text-slate-600 hover:text-slate-900 rounded-md hover:bg-slate-100"
-                aria-label="Open search"
+                aria-label="Search site"
               >
                 <Search className="w-5 h-5" />
               </button>
 
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="p-2 text-slate-700 hover:text-slate-900 focus:outline-none"
-                aria-label="Toggle Navigation Menu"
+                className="p-2 text-slate-600 hover:text-slate-900 rounded-md hover:bg-slate-100"
+                aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={mobileOpen}
               >
                 {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
@@ -154,43 +162,49 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
           </div>
         </div>
 
-        {/* Mobile Navigation Drawer */}
+        {/* Mobile Dropdown Menu */}
         {mobileOpen && (
-          <div className="xl:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-6 space-y-1 shadow-lg">
-            <div className="py-2 px-3 text-xs text-slate-500 border-b border-slate-100 mb-2 flex items-center justify-between">
-              <span>{COMPANY_INFO.parentGroup} Operations</span>
-              <span className="font-mono text-blue-600 text-[11px]">{COMPANY_INFO.domain}</span>
-            </div>
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => handleNav(item.id)}
-                className={`block w-full text-left px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
-                  currentPage === item.id
-                    ? 'bg-blue-50 text-blue-700 font-semibold'
-                    : 'text-slate-700 hover:bg-slate-100'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
-            <div className="pt-3">
-              <button
-                onClick={() => handleNav('contact')}
-                className="w-full text-center py-2.5 text-xs font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded-md shadow-xs"
+          <div className="xl:hidden bg-white border-b border-slate-200 px-4 pt-3 pb-6 space-y-2 animate-in slide-in-from-top-2 duration-150 shadow-lg">
+            {navItems.map((item) => {
+              const isActive = currentPath === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={handleMobileLinkClick}
+                  className={`block px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'bg-blue-50 text-blue-700 font-bold'
+                      : 'text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+
+            <div className="pt-4 border-t border-slate-100 space-y-3">
+              <Link
+                to="/contact"
+                onClick={handleMobileLinkClick}
+                className="w-full py-3 text-center text-xs font-semibold uppercase tracking-wider text-white bg-blue-700 hover:bg-blue-800 rounded-md block transition-colors"
               >
                 Request a Proposal
-              </button>
+              </Link>
+
+              <div className="text-center text-xs text-slate-500 pt-2 font-mono">
+                {COMPANY_INFO.inquiriesEmail}
+              </div>
             </div>
           </div>
         )}
       </header>
 
-      {/* Global Search Modal */}
+      {/* Global Interactive Search Modal */}
       <GlobalSearchModal
         isOpen={searchOpen}
         onClose={() => setSearchOpen(false)}
-        onNavigate={handleNav}
+        onNavigate={handleSearchNavigate}
       />
     </>
   );

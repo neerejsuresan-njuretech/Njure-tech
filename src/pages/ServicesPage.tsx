@@ -20,9 +20,10 @@ import {
   DollarSign
 } from 'lucide-react';
 import { BPO_SERVICES } from '../data/companyData';
+import { useNavigate } from 'react-router-dom';
 
 interface ServicesPageProps {
-  onNavigate: (page: string) => void;
+  onNavigate?: (page: string) => void;
 }
 
 interface FAQItem {
@@ -34,6 +35,19 @@ interface FAQItem {
 }
 
 export const ServicesPage: React.FC<ServicesPageProps> = ({ onNavigate }) => {
+  const navigate = useNavigate();
+
+  const handleNav = (target: string) => {
+    if (onNavigate) onNavigate(target);
+    const PATH_MAP: Record<string, string> = {
+      'contact': '/contact',
+      'services': '/services',
+      'careers': '/careers',
+      'home': '/',
+    };
+    navigate(PATH_MAP[target] || (target.startsWith('/') ? target : `/${target}`));
+  };
+
   const [openFaq, setOpenFaq] = useState<string | null>('faq-1');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
@@ -77,14 +91,15 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onNavigate }) => {
     {
       id: 'faq-4',
       category: 'Security & Access',
-      question: 'Are you certified by ISO or SOC, and how do you protect our data?',
+      question: 'Are you ISO or SOC certified, and what operating controls do you enforce?',
       answer:
-        'We speak with radical honesty: we may not carry formal ISO or SOC certification badges, but we follow and enforce operational data protection and process hygiene better than corporate call centers. Legacy corporate BPOs spend tens of thousands buying ISO or SOC badges for sales decks while suffering 70% floor attrition and lax daily enforcement. At Njure Tech, our remote specialists are profit-sharing business partners with signed bilateral NDAs, port-locked workstations (disabled USB drives), domain whitelisting, and client-controlled SSO/MFA. You get institutional-grade discipline, genuine co-owner accountability, and zero data leakage without inflated corporate compliance overhead.',
+        'Njure Tech is currently not ISO 27001 or SOC 2 certified. Our operating controls include appropriate access restrictions, endpoint policies, clean-desk practices, bilateral NDAs, client-controlled identity access (SSO/MFA), and supervisor-level quality controls. Client-specific security and compliance requirements are reviewed during onboarding before production access is granted to ensure alignment with your organization’s standards.',
       highlights: [
-        'Real operational discipline over expensive corporate paper badge theater',
-        'Port-restricted machines, disabled USBs, and clean-screen enforcement',
+        'Transparent disclosure: Currently not ISO 27001 or SOC 2 certified',
+        'Port-restricted machines, disabled external storage, and clean-screen standards',
         'Legally binding bilateral NDAs signed prior to onboarding',
-        'Business partner profit-sharing ensures genuine frontline care and vigilance',
+        'Client-controlled identity (SSO/MFA) with instant revocation authority',
+        'Client compliance requirements reviewed during onboarding before launch',
       ],
     },
     {
@@ -154,7 +169,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onNavigate }) => {
             </p>
           </div>
           <button
-            onClick={() => onNavigate('contact')}
+            onClick={() => handleNav('contact')}
             className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white bg-slate-900 hover:bg-slate-800 rounded-md transition-colors cursor-pointer shrink-0"
           >
             <span>Request Budget Scoping</span>
@@ -189,7 +204,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onNavigate }) => {
                 </div>
 
                 <button
-                  onClick={() => onNavigate('contact')}
+                  onClick={() => handleNav('contact')}
                   className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white bg-blue-700 hover:bg-blue-800 rounded-md transition-colors cursor-pointer shrink-0 self-start lg:self-center"
                 >
                   <span>Request Scoping</span>
@@ -393,7 +408,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onNavigate }) => {
               </p>
             </div>
             <button
-              onClick={() => onNavigate('contact')}
+              onClick={() => handleNav('contact')}
               className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white bg-blue-700 hover:bg-blue-800 rounded-md transition-colors cursor-pointer shrink-0"
             >
               <span>Schedule Technical Call</span>
@@ -411,7 +426,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onNavigate }) => {
             </p>
           </div>
           <button
-            onClick={() => onNavigate('contact')}
+            onClick={() => handleNav('contact')}
             className="inline-flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-900 bg-white hover:bg-slate-100 rounded-md transition-colors cursor-pointer shrink-0"
           >
             <span>Request Team Scoping</span>
