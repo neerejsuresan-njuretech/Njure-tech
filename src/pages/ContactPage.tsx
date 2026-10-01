@@ -9,6 +9,7 @@ import {
   CheckCircle 
 } from 'lucide-react';
 import { COMPANY_INFO } from '../data/companyData';
+import { Breadcrumb } from '../components/Breadcrumb';
 
 interface FormState {
   name: string;
@@ -165,18 +166,21 @@ ${formData.message || 'Not provided'}
   };
 
   return (
-    <div className="bg-slate-50 py-12 lg:py-16">
+    <div className="bg-slate-50 py-10 lg:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb items={[{ label: 'Contact Us & Proposal Request' }]} />
+
         {/* Page Header */}
         <div className="max-w-3xl mb-12">
           <div className="text-xs font-bold uppercase tracking-wider text-blue-700 mb-2">
-            Client Inquiries & Scoping
+            Client Inquiries & Budget Scoping
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight leading-tight mb-4">
-            Contact Njure Tech
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight mb-4">
+            Contact Njure Tech & Request a Budget-Oriented BPO Proposal
           </h1>
           <p className="text-base text-slate-600 leading-relaxed">
-            Connect directly with our remote operations leadership to discuss your support volume, schedule an operational scoping call, or request a budget-oriented proposal.
+            Connect directly with our remote operations leadership to discuss your support volume, schedule an operational scoping call, or request a budget-tailored proposal.
           </p>
         </div>
 

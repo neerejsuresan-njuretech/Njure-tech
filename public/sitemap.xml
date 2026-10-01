@@ -1,41 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- 1. Home Page -->
   <url>
     <loc>https://tech.njuregroup.in/</loc>
     <lastmod>2026-10-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
+
+  <!-- 2. Services Directory & Overview -->
   <url>
     <loc>https://tech.njuregroup.in/services</loc>
     <lastmod>2026-10-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
+
+  <!-- 3. Omnichannel Customer Support Outsourcing -->
+  <url>
+    <loc>https://tech.njuregroup.in/services/customer-support</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 4. Back-Office Data Operations & Verification -->
+  <url>
+    <loc>https://tech.njuregroup.in/services/back-office</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 5. E-Commerce Operations & RTO Reduction -->
+  <url>
+    <loc>https://tech.njuregroup.in/services/ecommerce-support</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 6. Telecalling & Inbound Lead Qualification -->
+  <url>
+    <loc>https://tech.njuregroup.in/services/telecalling</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 7. Remote Operations & Architecture -->
   <url>
     <loc>https://tech.njuregroup.in/operations</loc>
     <lastmod>2026-10-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- 8. Security by Design & Governance Controls -->
+  <url>
+    <loc>https://tech.njuregroup.in/security</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- 9. Technology Roadmap -->
   <url>
     <loc>https://tech.njuregroup.in/technology</loc>
     <lastmod>2026-10-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- 10. About Us & Company Story -->
   <url>
     <loc>https://tech.njuregroup.in/about</loc>
     <lastmod>2026-10-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
+  <!-- 11. Careers (100% Remote Partnerships) -->
   <url>
     <loc>https://tech.njuregroup.in/careers</loc>
     <lastmod>2026-10-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- 12. Contact Us & Budget RFQ -->
   <url>
     <loc>https://tech.njuregroup.in/contact</loc>
     <lastmod>2026-10-01</lastmod>

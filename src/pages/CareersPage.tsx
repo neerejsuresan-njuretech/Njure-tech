@@ -13,6 +13,7 @@ import {
   Mail
 } from 'lucide-react';
 import { COMPANY_INFO, CAREER_LISTINGS, CareerItem } from '../data/companyData';
+import { Breadcrumb } from '../components/Breadcrumb';
 
 export const CareersPage: React.FC = () => {
   const [selectedRole, setSelectedRole] = useState<CareerItem | null>(null);
@@ -152,8 +153,11 @@ ${applicantName || 'Candidate'}
   };
 
   return (
-    <div className="bg-slate-50 py-12 lg:py-16">
+    <div className="bg-slate-50 py-10 lg:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb items={[{ label: 'Remote Careers & Partnerships' }]} />
+
         {/* Page Header */}
         <div className="max-w-3xl mb-12">
           <div className="text-xs font-bold uppercase tracking-wider text-blue-700 mb-2">

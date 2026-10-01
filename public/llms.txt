@@ -1,0 +1,53 @@
+# Njure Tech (https://tech.njuregroup.in)
+
+> Njure Tech is a client-budget-oriented Business Process Outsourcing (BPO) and remote operations company under Njure Group. It operates a 100% remote model with zero agency cut, sharing project profits directly with frontline remote specialists as business partners.
+
+## Core Entity Details
+- Legal Brand: Njure Tech
+- Parent Organization: Njure Group (https://njuregroup.in)
+- Official Domain: https://tech.njuregroup.in
+- Central Inquiries Email: info@njuregroup.in
+- Operating Model: 100% Remote & Distributed Workforce Across India
+- Business Hours: 24/7 Follow-the-Sun Operations
+- Primary Languages: English, Malayalam, Hindi, Tamil
+
+## Core BPO Services & Canonical URLs
+- Omnichannel Customer Support Outsourcing: https://tech.njuregroup.in/services/customer-support
+  - Sub-2 minute live chat & phone answer speed, email ticketing, WhatsApp Business API, and Tier-1 technical troubleshooting across Zendesk, Freshdesk, Jira Service Management, and Zoho Desk.
+- Back-Office Operations & Data Processing: https://tech.njuregroup.in/services/back-office
+  - KYC document verification, product catalog indexing, vendor invoice audits, and spreadsheet deduplication with dual-pass 99.5%+ accuracy.
+- E-Commerce Support & RTO Reduction: https://tech.njuregroup.in/services/ecommerce-support
+  - Cash-on-Delivery (COD) phone/WhatsApp confirmation, Non-Delivery Report (NDR) triage, courier delay escalation, and returns processing reducing Return-to-Origin by 25%–35%.
+- Telecalling & Inbound Lead Qualification: https://tech.njuregroup.in/services/telecalling
+  - Speed-to-lead contact within 10 minutes, discovery meeting booking on sales rep calendars, NPS surveys, and renewal reminder calling.
+- BPO Services Directory Overview: https://tech.njuregroup.in/services
+
+## Operating Model & Zero Agency Cut Economics
+- URL: https://tech.njuregroup.in/about
+- URL: https://tech.njuregroup.in/operations
+- Traditional agencies take 50%–70% of client fees for corporate margins and physical office leases.
+- Njure Tech operates without commercial real estate overhead and takes zero agency cut, passing project profits directly to remote specialists as business partners.
+- Results: Sub-2 minute SLAs, near-zero turnover, authentic dedication, and open-book transparency.
+
+## Security Controls & Compliance Posture
+- URL: https://tech.njuregroup.in/security
+- Transparent Disclosure: Njure Tech is currently not ISO 27001 or SOC 2 certified.
+- Operational Controls:
+  - Workstations with locked down USB ports, application whitelisting, and clean-screen standards.
+  - Client-controlled identity (SSO/MFA) with instant one-click revocation authority.
+  - Bilateral legally enforceable NDAs signed by every specialist.
+  - Continuous supervisor-level queue monitoring and QA audits.
+  - Onboarding security review prior to production access.
+
+## Technology & Engineering Roadmap
+- URL: https://tech.njuregroup.in/technology
+- Active Services: High-touch human BPO operations.
+- Planned Horizons: Custom React dashboards, CRM webhook synchronization connectors, and workflow automation copilots.
+
+## Careers & Hiring
+- URL: https://tech.njuregroup.in/careers
+- 100% work from home partnerships across India with project profit sharing and broadband allowances.
+
+## Inquiries & Proposals
+- URL: https://tech.njuregroup.in/contact
+- Inquiries Email: info@njuregroup.in

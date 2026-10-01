@@ -1,0 +1,16 @@
+{
+  "name": "Njure Tech — Client-Budget BPO & Scaled Remote Operations",
+  "short_name": "Njure Tech",
+  "description": "Client-budget-oriented customer care, back-office data processing, e-commerce operations, and telecalling with zero agency cut.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#1d4ed8",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png"
+    }
+  ]
+}
