@@ -8,6 +8,9 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+import { db } from './src/db/index.ts';
+import { inquiries as inquiriesTable, applications as applicationsTable } from './src/db/schema.ts';
+
 const app = express();
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const isProd = process.env.NODE_ENV === 'production';
@@ -318,13 +321,30 @@ app.post('/api/inquiries', rateLimiter, async (req: Request, res: Response) => {
       status: 'pending_review',
     };
 
-    // Append to local ledger
+    // Save in Cloud SQL PostgreSQL database
     try {
-      const existing: any[] = JSON.parse(fs.readFileSync(INQUIRIES_FILE, 'utf-8'));
-      existing.unshift(record);
-      fs.writeFileSync(INQUIRIES_FILE, JSON.stringify(existing, null, 2));
-    } catch (e) {
-      console.error('Failed to append inquiry to ledger:', e);
+      await db.insert(inquiriesTable).values({
+        trackingId: inquiryId,
+        name: sanitizedName,
+        email: sanitizedEmail,
+        phone: sanitizedPhone,
+        company: sanitizedCompany,
+        service: sanitizedService,
+        budget: sanitizedBudget,
+        timeline: sanitizedTimeline,
+        message: sanitizedMessage,
+        status: 'pending_review',
+      });
+      console.log(`[Cloud SQL] Inquiry ${inquiryId} successfully saved to PostgreSQL database.`);
+    } catch (dbErr) {
+      console.error('Failed to save inquiry to Cloud SQL, falling back to local ledger:', dbErr);
+      try {
+        const existing: any[] = JSON.parse(fs.readFileSync(INQUIRIES_FILE, 'utf-8'));
+        existing.unshift(record);
+        fs.writeFileSync(INQUIRIES_FILE, JSON.stringify(existing, null, 2));
+      } catch (e) {
+        console.error('Failed to append inquiry to ledger:', e);
+      }
     }
 
     // Notify Operations Team
@@ -462,13 +482,30 @@ app.post('/api/applications', rateLimiter, handleUpload, async (req: Request, re
       status: 'under_review',
     };
 
-    // Store in local ledger
+    // Save in Cloud SQL PostgreSQL database
     try {
-      const existing: any[] = JSON.parse(fs.readFileSync(APPLICATIONS_FILE, 'utf-8'));
-      existing.unshift(record);
-      fs.writeFileSync(APPLICATIONS_FILE, JSON.stringify(existing, null, 2));
-    } catch (e) {
-      console.error('Failed to append application to ledger:', e);
+      await db.insert(applicationsTable).values({
+        applicationId: applicationId,
+        name: sanitizedName,
+        email: sanitizedEmail,
+        phone: sanitizedPhone,
+        location: sanitizedLocation,
+        role: sanitizedRole,
+        experience: sanitizedExperience,
+        portfolio: sanitizedPortfolio,
+        resumeFileName: safeResumeOriginalName,
+        status: 'under_review',
+      });
+      console.log(`[Cloud SQL] Application ${applicationId} successfully saved to PostgreSQL database.`);
+    } catch (dbErr) {
+      console.error('Failed to save application to Cloud SQL, falling back to local ledger:', dbErr);
+      try {
+        const existing: any[] = JSON.parse(fs.readFileSync(APPLICATIONS_FILE, 'utf-8'));
+        existing.unshift(record);
+        fs.writeFileSync(APPLICATIONS_FILE, JSON.stringify(existing, null, 2));
+      } catch (e) {
+        console.error('Failed to append application to ledger:', e);
+      }
     }
 
     // Dispatch notification with attachment
