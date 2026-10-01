@@ -17,6 +17,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { COMPANY_INFO } from '../data/companyData';
+import { Interactive3DSecurityPod } from '../components/3d/Interactive3DSecurityPod';
 
 interface DeliveryCenterPageProps {
   onNavigate: (page: string) => void;
@@ -188,6 +189,9 @@ export const DeliveryCenterPage: React.FC<DeliveryCenterPageProps> = ({ onNaviga
               </ul>
             </div>
           </div>
+
+          {/* Interactive 3D Spatial Security Pod Visualizer */}
+          <Interactive3DSecurityPod className="mt-8" />
         </div>
 
         {/* 24/7 Follow-the-Sun Shift Coverage */}

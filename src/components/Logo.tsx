@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
+import logoTransparent from '../assets/logo-transparent.png';
+import logoFull from '../assets/logo.png';
 
-// Public shareable link from user: https://photos.app.goo.gl/hrsznUz8kCG799Rh8
-// Local high-resolution transparent asset tightly cropped to glyph bounds (456x174)
-export const DEFAULT_LOGO_IMAGE_URL = '/logo-transparent.png';
-export const REMOTE_LOGO_FALLBACK_URL = 
-  'https://lh3.googleusercontent.com/pw/AP1GczN84jvxr1c5T_uNkS3U1QSJXypWCIxbNVsEJGjYckdWs9JXN1Znt9doYs9wzKWcTnXDC410ZDv1M_RdC-XThfcDP488ivdFoC4DY7wlhrLm1JR-4kU=w1200-no';
+// Bundled high-resolution assets: resolved by Vite relative to base URL (works on GitHub Pages subpaths and root domains)
+export const DEFAULT_LOGO_IMAGE_URL = logoTransparent;
+export const LOGO_FULL_URL = logoFull;
 
 interface LogoProps {
   className?: string;
@@ -38,10 +38,8 @@ export const Logo: React.FC<LogoProps> = ({
   };
 
   const handleImageError = () => {
-    if (currentSrc === DEFAULT_LOGO_IMAGE_URL) {
-      setCurrentSrc('/logo.png');
-    } else if (currentSrc === '/logo.png') {
-      setCurrentSrc(REMOTE_LOGO_FALLBACK_URL);
+    if (currentSrc === logoTransparent) {
+      setCurrentSrc(logoFull);
     } else {
       setImgError(true);
     }
@@ -63,7 +61,7 @@ export const Logo: React.FC<LogoProps> = ({
         /* Dark Theme variant with clean protective contrast pill */
         <div className="bg-white/95 px-3 py-1.5 rounded-md shadow-xs inline-flex items-center">
           <img
-            src="/logo.png"
+            src={logoFull}
             alt="Njure Tech — A Njure Group Company"
             className={`${heights[size]} w-auto object-contain block`}
             onError={handleImageError}

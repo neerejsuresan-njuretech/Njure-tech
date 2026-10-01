@@ -1,6 +1,7 @@
-import React from 'react';
 import { Sparkles, Code, Cloud, Cpu, ArrowRight, CheckCircle2, Check } from 'lucide-react';
 import { FUTURE_ROADMAP, COMPANY_INFO } from '../data/companyData';
+import { InteractivePipeline3D } from '../components/3d/InteractivePipeline3D';
+import { TiltCard } from '../components/motion/TiltCard';
 
 interface FutureTechPageProps {
   onNavigate: (page: string) => void;
@@ -36,48 +37,60 @@ export const FutureTechPage: React.FC<FutureTechPageProps> = ({ onNavigate }) =>
           </p>
         </div>
 
+        {/* Interactive 3D Automation Pipeline Simulation */}
+        <div className="mb-16">
+          <div className="mb-4">
+            <h2 className="text-xl font-bold text-slate-900 mb-1">
+              Real-Time Workflow Automation Architecture
+            </h2>
+            <p className="text-xs text-slate-600">
+              Interactive 3D simulation of our upcoming event-driven integration layer connecting customer channels, data extraction, and partner pods.
+            </p>
+          </div>
+          <InteractivePipeline3D />
+        </div>
+
         {/* Roadmap Items */}
         <div className="space-y-8 mb-16">
           <h2 className="text-2xl font-bold text-slate-900">Planned Technology Disciplines</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {FUTURE_ROADMAP.map((item, idx) => (
-              <div
-                key={item.id}
-                className="bg-white p-6 rounded-lg border border-slate-200 shadow-2xs flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-10 h-10 rounded bg-blue-50 text-blue-700 flex items-center justify-center">
-                      {idx === 0 && <Code className="w-5 h-5" />}
-                      {idx === 1 && <Cloud className="w-5 h-5" />}
-                      {idx === 2 && <Cpu className="w-5 h-5" />}
+              <TiltCard key={item.id} className="h-full">
+                <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-2xs flex flex-col justify-between h-full">
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-10 h-10 rounded bg-blue-50 text-blue-700 flex items-center justify-center">
+                        {idx === 0 && <Code className="w-5 h-5" />}
+                        {idx === 1 && <Cloud className="w-5 h-5" />}
+                        {idx === 2 && <Cpu className="w-5 h-5" />}
+                      </div>
+                      <span className="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded">
+                        {item.status}
+                      </span>
                     </div>
-                    <span className="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded">
-                      {item.status}
-                    </span>
+
+                    <h3 className="text-base font-bold text-slate-900 mb-2">{item.title}</h3>
+                    <p className="text-xs text-slate-600 leading-relaxed mb-6">{item.description}</p>
+
+                    <div className="space-y-2 mb-4">
+                      <div className="text-[11px] font-semibold text-slate-400 uppercase">Target Capabilities:</div>
+                      <ul className="space-y-1.5">
+                        {item.capabilities.map((cap, i) => (
+                          <li key={i} className="text-xs text-slate-700 flex items-start gap-1.5">
+                            <Check className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
+                            <span>{cap}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
 
-                  <h3 className="text-base font-bold text-slate-900 mb-2">{item.title}</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed mb-6">{item.description}</p>
-
-                  <div className="space-y-2 mb-4">
-                    <div className="text-[11px] font-semibold text-slate-400 uppercase">Target Capabilities:</div>
-                    <ul className="space-y-1.5">
-                      {item.capabilities.map((cap, i) => (
-                        <li key={i} className="text-xs text-slate-700 flex items-start gap-1.5">
-                          <Check className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
-                          <span>{cap}</span>
-                        </li>
-                      ))}
-                    </ul>
+                  <div className="pt-4 border-t border-slate-100 text-xs text-slate-400 font-mono">
+                    Phased rollout under {COMPANY_INFO.domain}
                   </div>
                 </div>
-
-                <div className="pt-4 border-t border-slate-100 text-xs text-slate-400 font-mono">
-                  Phased rollout under {COMPANY_INFO.domain}
-                </div>
-              </div>
+              </TiltCard>
             ))}
           </div>
         </div>

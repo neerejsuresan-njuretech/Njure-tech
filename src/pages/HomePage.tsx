@@ -16,6 +16,9 @@ import {
   HeartHandshake
 } from 'lucide-react';
 import { COMPANY_INFO, BPO_SERVICES, FUTURE_ROADMAP } from '../data/companyData';
+import { GlobalNetworkGlobe } from '../components/3d/GlobalNetworkGlobe';
+import { TiltCard } from '../components/motion/TiltCard';
+import { CountUpNumber } from '../components/motion/CountUpNumber';
 
 interface HomePageProps {
   onNavigate: (page: string) => void;
@@ -62,23 +65,31 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               </button>
             </div>
 
-            {/* Service Outcomes Ribbon */}
+            {/* Service Outcomes Ribbon with Smooth Animated Metrics */}
             <div className="pt-10 mt-10 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-6 text-xs text-slate-600">
               <div>
-                <span className="font-bold text-slate-900 text-sm block font-mono">Sub-2 Min</span>
-                <span className="text-slate-500">First-response benchmark</span>
+                <span className="font-bold text-slate-900 text-base block font-mono">
+                  <CountUpNumber value={99.8} decimals={1} suffix="%" />
+                </span>
+                <span className="text-slate-500">First-contact SLA benchmark</span>
               </div>
               <div>
-                <span className="font-bold text-slate-900 text-sm block font-mono">99.5%+</span>
+                <span className="font-bold text-slate-900 text-base block font-mono">
+                  <CountUpNumber value={99.5} decimals={1} suffix="%+" />
+                </span>
                 <span className="text-slate-500">Data accuracy SLA</span>
               </div>
               <div>
-                <span className="font-bold text-slate-900 text-sm block font-mono">7-Day</span>
+                <span className="font-bold text-slate-900 text-base block font-mono">
+                  <CountUpNumber value={7} suffix="-Day" />
+                </span>
                 <span className="text-slate-500">Fast pilot onboarding</span>
               </div>
               <div>
-                <span className="font-bold text-slate-900 text-sm block font-mono">24/7/365</span>
-                <span className="text-slate-500">Flexible shift coverage</span>
+                <span className="font-bold text-slate-900 text-base block font-mono">
+                  <CountUpNumber value={100} suffix="% Remote" />
+                </span>
+                <span className="text-slate-500">Zero real estate bloat</span>
               </div>
             </div>
           </div>
@@ -108,36 +119,56 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {BPO_SERVICES.map((srv, idx) => (
-              <div
-                key={srv.id}
-                className="bg-white p-6 rounded-lg border border-slate-200 shadow-2xs hover:border-slate-300 transition-colors flex flex-col justify-between"
-              >
-                <div>
-                  <div className="w-10 h-10 rounded bg-blue-50 text-blue-700 flex items-center justify-center mb-4">
-                    {idx === 0 && <Headphones className="w-5 h-5" />}
-                    {idx === 1 && <Database className="w-5 h-5" />}
-                    {idx === 2 && <ShoppingBag className="w-5 h-5" />}
-                    {idx === 3 && <PhoneCall className="w-5 h-5" />}
+              <TiltCard key={srv.id} className="h-full">
+                <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-2xs hover:border-slate-300 transition-colors flex flex-col justify-between h-full">
+                  <div>
+                    <div className="w-10 h-10 rounded bg-blue-50 text-blue-700 flex items-center justify-center mb-4">
+                      {idx === 0 && <Headphones className="w-5 h-5" />}
+                      {idx === 1 && <Database className="w-5 h-5" />}
+                      {idx === 2 && <ShoppingBag className="w-5 h-5" />}
+                      {idx === 3 && <PhoneCall className="w-5 h-5" />}
+                    </div>
+                    <h3 className="text-base font-bold text-slate-900 mb-1">{srv.title}</h3>
+                    <p className="text-xs font-medium text-blue-600 mb-2">{srv.tagline}</p>
+                    <p className="text-xs text-slate-600 leading-relaxed mb-4">{srv.shortDesc}</p>
                   </div>
-                  <h3 className="text-base font-bold text-slate-900 mb-1">{srv.title}</h3>
-                  <p className="text-xs font-medium text-blue-600 mb-2">{srv.tagline}</p>
-                  <p className="text-xs text-slate-600 leading-relaxed mb-4">{srv.shortDesc}</p>
-                </div>
 
-                <div className="pt-4 border-t border-slate-100 space-y-2">
-                  <div className="text-[11px] uppercase font-semibold text-slate-400">Key Deliverables:</div>
-                  <ul className="space-y-1 text-xs text-slate-600">
-                    {srv.keyOutcomes.slice(0, 2).map((item, i) => (
-                      <li key={i} className="flex items-center gap-1.5">
-                        <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="pt-4 border-t border-slate-100 space-y-2">
+                    <div className="text-[11px] uppercase font-semibold text-slate-400">Key Deliverables:</div>
+                    <ul className="space-y-1 text-xs text-slate-600">
+                      {srv.keyOutcomes.slice(0, 2).map((item, i) => (
+                        <li key={i} className="flex items-center gap-1.5">
+                          <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
-              </div>
+              </TiltCard>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Interactive 3D Global Operations Network Mesh */}
+      <section className="py-16 sm:py-24 bg-slate-950 text-white relative overflow-hidden border-y border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mb-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-semibold uppercase tracking-wider mb-3">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Real-Time Spatial Infrastructure</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4">
+              Decentralized Global Operations Network
+            </h2>
+            <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+              Explore our live 3D distributed routing mesh. Our South Asia operations pods operate in continuous synchrony with client desks across North America, the UK, Europe, and the Middle East—delivering 24/7 client-budget operations with port-locked endpoint security.
+            </p>
+          </div>
+
+          {/* 3D WebGL Canvas Component */}
+          <GlobalNetworkGlobe />
         </div>
       </section>
 
