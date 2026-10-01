@@ -89,97 +89,69 @@ export const ContactPage: React.FC = () => {
     if (serverError) setServerError(null);
   };
 
-  const handleOpenMailClient = () => {
+  const generateUniqueRefId = () => {
+    const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return `NJ-INQ-2026-${code}`;
+  };
+
+  const createMailtoUrl = (refId: string) => {
     const recipient = 'info@njuregroup.in';
-    const cc = 'neerej.suresan.s@gmail.com';
-    const subject = encodeURIComponent(`[Njure Tech Portal] BPO Operations Inquiry - ${formData.name || 'Client'} (${formData.company || 'Direct'})`);
+    const subject = encodeURIComponent(`[Ref: ${refId}] BPO Operations Inquiry - ${formData.name || 'Client'} (${formData.company || 'Direct'})`);
     const body = encodeURIComponent(`Hello Njure Tech Team,
 
 I would like to request an operations consultation with the following details:
 
-- Full Name: ${formData.name || 'Not provided'}
-- Business Email: ${formData.email || 'Not provided'}
-- Phone: ${formData.phone || 'Not provided'}
-- Company / Organization: ${formData.company || 'Not provided'}
-- Target Service: ${formData.service}
-- Budget Parameter: ${formData.budget}
-- Target Timeline: ${formData.timeline}
+========================================
+REFERENCE ID: ${refId}
+TIMESTAMP:    ${new Date().toLocaleString()}
+========================================
 
-Project / Scope Description:
+CLIENT CONTACT:
+- Full Name:      ${formData.name || 'Not provided'}
+- Business Email: ${formData.email || 'Not provided'}
+- Phone Number:   ${formData.phone || 'Not provided'}
+- Company:        ${formData.company || 'Direct Client'}
+
+PROJECT PARAMETERS:
+- Target Service:   ${formData.service}
+- Budget Parameter: ${formData.budget}
+- Expected Timeline:${formData.timeline}
+
+PROJECT / SCOPE DESCRIPTION:
 ${formData.message || 'Not provided'}
 
-Thank you,
-${formData.name || 'Client'}
+========================================
 `);
-    window.location.href = `mailto:${recipient}?cc=${cc}&subject=${subject}&body=${body}`;
+    return `mailto:${recipient}?subject=${subject}&body=${body}`;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleOpenMailClient = () => {
+    const refId = generateUniqueRefId();
+    window.location.href = createMailtoUrl(refId);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
-    setIsSubmitting(true);
-    setServerError(null);
+    const refId = generateUniqueRefId();
+    const mailtoUrl = createMailtoUrl(refId);
 
-    try {
-      const response = await fetch('/api/inquiries', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+    // Launch the user's default email client with all prefilled details
+    window.location.href = mailtoUrl;
 
-      let data: any = null;
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        data = await response.json();
-      } else {
-        const text = await response.text();
-        try {
-          data = JSON.parse(text);
-        } catch {
-          throw new Error(
-            response.ok
-              ? 'Server returned an invalid response format.'
-              : `Server error (${response.status}): ${response.statusText || 'Unable to process inquiry'}`
-          );
-        }
-      }
-
-      if (!response.ok || !data?.success) {
-        const errorMsg = data?.message || data?.error || 'Failed to submit inquiry. Please try again.';
-        throw new Error(errorMsg);
-      }
-
-      // ONLY display success state and reset form upon verified successful response
-      setSubmittedInquiry({
-        id: data.inquiryId || `NJ-INQ-2026-${Date.now().toString(36).toUpperCase()}`,
-        name: formData.name.trim(),
-        company: formData.company.trim() || 'Direct Client Account',
-        service: formData.service,
-        budget: formData.budget,
-      });
-
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        company: '',
-        service: 'Customer Support (Voice & Chat)',
-        budget: 'Tailor specifically to my operational budget',
-        timeline: 'Standard onboarding (1–2 weeks)',
-        message: '',
-        honeypot: '',
-      });
-      setClientErrors({});
-    } catch (err: any) {
-      console.error('Inquiry transmission error:', err);
-      setServerError(err.message || 'Failed to transmit inquiry. Please check your connection or email info@njuregroup.in.');
-    } finally {
-      setIsSubmitting(false);
-    }
+    // Display confirmation receipt state
+    setSubmittedInquiry({
+      id: refId,
+      name: formData.name.trim(),
+      company: formData.company.trim() || 'Direct Client Account',
+      service: formData.service,
+      budget: formData.budget,
+    });
   };
 
   const handleReset = () => {
@@ -294,20 +266,24 @@ ${formData.name || 'Client'}
           <div className="lg:col-span-7">
             <div className="bg-white p-8 sm:p-10 rounded-lg border border-slate-200 shadow-2xs">
               {submittedInquiry ? (
-                /* Confirmed Transmission Success State */
+                /* Confirmed Transmission Receipt State */
                 <div className="py-8 text-center" role="status" aria-live="polite">
-                  <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle2 className="w-8 h-8" />
+                  <div className="w-14 h-14 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center mx-auto mb-4">
+                    <Mail className="w-7 h-7" />
                   </div>
-                  <h2 className="text-2xl font-bold text-slate-900 mb-2">Inquiry Received</h2>
+                  <h2 className="text-2xl font-bold text-slate-900 mb-2">Email Generated & Ready to Send</h2>
                   <p className="text-sm text-slate-600 max-w-md mx-auto mb-6 leading-relaxed">
-                    Thank you, <strong className="text-slate-900">{submittedInquiry.name}</strong>. Your inquiry for <strong className="text-slate-900">{submittedInquiry.company}</strong> has been transmitted and logged directly into our operations dispatch ledger.
+                    Thank you, <strong className="text-slate-900">{submittedInquiry.name}</strong>. Your inquiry has been prefilled into your email application with a dedicated reference ID.
                   </p>
 
                   <div className="bg-slate-50 border border-slate-200 rounded p-4 max-w-md mx-auto mb-8 text-xs text-left font-mono">
                     <div className="flex justify-between py-1.5 border-b border-slate-200">
-                      <span className="text-slate-500">Official Tracking ID:</span>
+                      <span className="text-slate-500">Unique Reference ID:</span>
                       <span className="font-bold text-blue-700">{submittedInquiry.id}</span>
+                    </div>
+                    <div className="flex justify-between py-1.5 border-b border-slate-200">
+                      <span className="text-slate-500">Recipient Email:</span>
+                      <span className="text-slate-800 font-medium">info@njuregroup.in</span>
                     </div>
                     <div className="flex justify-between py-1.5 border-b border-slate-200">
                       <span className="text-slate-500">Service Category:</span>
@@ -317,22 +293,27 @@ ${formData.name || 'Client'}
                       <span className="text-slate-500">Budget Parameter:</span>
                       <span className="text-slate-800 font-medium">{submittedInquiry.budget}</span>
                     </div>
-                    <div className="flex justify-between py-1.5 border-b border-slate-200">
-                      <span className="text-slate-500">Business Model:</span>
-                      <span className="text-emerald-700 font-semibold">Zero Agency Cut · Partner Profit</span>
-                    </div>
                     <div className="flex justify-between py-1.5">
                       <span className="text-slate-500">Response SLA:</span>
                       <span className="text-emerald-700 font-semibold">Same Business Day</span>
                     </div>
                   </div>
 
-                  <button
-                    onClick={handleReset}
-                    className="px-6 py-2.5 text-xs font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded transition-colors cursor-pointer"
-                  >
-                    Submit Another Inquiry
-                  </button>
+                  <div className="flex flex-wrap items-center justify-center gap-3">
+                    <button
+                      onClick={() => { window.location.href = createMailtoUrl(submittedInquiry.id); }}
+                      className="px-5 py-2.5 text-xs font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded transition-colors cursor-pointer flex items-center gap-2"
+                    >
+                      <Mail className="w-4 h-4" />
+                      <span>Re-open in Mail App</span>
+                    </button>
+                    <button
+                      onClick={handleReset}
+                      className="px-5 py-2.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded transition-colors cursor-pointer"
+                    >
+                      Fill Another Inquiry
+                    </button>
+                  </div>
                 </div>
               ) : (
                 /* Live Inquiry Submission Form */
@@ -341,7 +322,7 @@ ${formData.name || 'Client'}
                     Request an Operations Consultation
                   </h2>
                   <p className="text-xs text-slate-500 mb-6">
-                    Fill out this form and our operations lead will review your scope and reply with team sizing and budget options.
+                    Fill out this form and click below to open your email client prefilled with your project parameters and an automatic reference ID.
                   </p>
 
                   {serverError && (
@@ -562,38 +543,17 @@ ${formData.name || 'Client'}
                     </div>
 
                     <div className="pt-2">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                        <button
-                          type="submit"
-                          disabled={isSubmitting}
-                          className="w-full sm:w-auto px-8 py-3 text-xs font-bold uppercase tracking-wider text-white bg-blue-700 hover:bg-blue-800 rounded transition-colors shadow-xs cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
-                        >
-                          {isSubmitting ? (
-                            <>
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                              <span>Transmitting Inquiry...</span>
-                            </>
-                          ) : (
-                            <>
-                              <span>Send Inquiry</span>
-                              <ArrowRight className="w-4 h-4" />
-                            </>
-                          )}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={handleOpenMailClient}
-                          title="Open your default email client with your filled form details"
-                          className="w-full sm:w-auto px-5 py-3 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded transition-colors cursor-pointer flex items-center justify-center gap-2"
-                        >
-                          <Mail className="w-4 h-4 text-slate-600" />
-                          <span>Send via Email Client</span>
-                        </button>
-                      </div>
+                      <button
+                        type="submit"
+                        className="w-full sm:w-auto px-8 py-3.5 text-xs font-bold uppercase tracking-wider text-white bg-blue-700 hover:bg-blue-800 rounded transition-colors shadow-xs cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        <Mail className="w-4 h-4" />
+                        <span>Send via Email</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
 
                       <p className="text-[11px] text-slate-500 mt-3">
-                        Submissions are securely logged to our operations database. You can also send directly from your preferred email client at any time.
+                        Clicking generates an automatic tracking Reference ID in the subject line and opens your email application prefilled directly to <strong className="text-slate-700">info@njuregroup.in</strong>.
                       </p>
                     </div>
                   </form>

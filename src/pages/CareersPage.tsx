@@ -122,108 +122,69 @@ export const CareersPage: React.FC = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleOpenMailClient = () => {
-    if (!selectedRole) return;
+  const generateUniqueRefId = () => {
+    const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return `NJ-APP-2026-${code}`;
+  };
+
+  const createMailtoUrl = (refId: string) => {
+    if (!selectedRole) return '';
     const recipient = 'info@njuregroup.in';
     const cc = 'neerej.suresan.s@gmail.com';
-    const subject = encodeURIComponent(`[Njure Tech Portal] Job Application: ${applicantName || 'Candidate'} - ${selectedRole.title}`);
+    const subject = encodeURIComponent(`[Ref: ${refId}] Job Application: ${applicantName || 'Candidate'} - ${selectedRole.title}`);
     const body = encodeURIComponent(`Hello Njure Tech Talent Team,
 
 I would like to apply for the position of "${selectedRole.title}". Here are my candidate details:
 
-- Full Name: ${applicantName || 'Not provided'}
-- Email Address: ${applicantEmail || 'Not provided'}
-- Contact Phone: ${applicantPhone || 'Not provided'}
+========================================
+APPLICATION REFERENCE ID: ${refId}
+TIMESTAMP:                ${new Date().toLocaleString()}
+========================================
+
+CANDIDATE DETAILS:
+- Full Name:        ${applicantName || 'Not provided'}
+- Email Address:    ${applicantEmail || 'Not provided'}
+- Contact Phone:    ${applicantPhone || 'Not provided'}
 - Current Location: ${applicantLocation || 'Not provided'}
-- Target Role: ${selectedRole.title} (${selectedRole.location} · ${selectedRole.type})
+- Target Role:      ${selectedRole.title} (${selectedRole.location} · ${selectedRole.type})
 - Experience Level: ${applicantExperience}
-- Portfolio / LinkedIn: ${applicantPortfolio || 'Not provided'}
-- Resume Document: ${resumeFile?.name || 'Attached to this email'}
+- Portfolio / Link: ${applicantPortfolio || 'Not provided'}
+- Selected Resume:  ${resumeFile?.name || 'Attached to this email'}
 
 (I have attached my updated resume / CV document to this email message.)
 
 Thank you,
 ${applicantName || 'Candidate'}
 `);
-    window.location.href = `mailto:${recipient}?cc=${cc}&subject=${subject}&body=${body}`;
+    return `mailto:${recipient}?cc=${cc}&subject=${subject}&body=${body}`;
   };
 
-  const handleSubmitApplication = async (e: React.FormEvent) => {
+  const handleOpenMailClient = () => {
+    const refId = generateUniqueRefId();
+    window.location.href = createMailtoUrl(refId);
+  };
+
+  const handleSubmitApplication = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedRole || !validate()) return;
 
-    setIsSubmitting(true);
-    setServerError(null);
+    const refId = generateUniqueRefId();
+    const mailtoUrl = createMailtoUrl(refId);
 
-    const formData = new FormData();
-    formData.append('name', applicantName.trim());
-    formData.append('email', applicantEmail.trim().toLowerCase());
-    formData.append('phone', applicantPhone.trim());
-    formData.append('location', applicantLocation.trim());
-    formData.append('role', selectedRole.title);
-    formData.append('experience', applicantExperience);
-    formData.append('portfolio', applicantPortfolio.trim());
-    formData.append('consent', String(consent));
-    formData.append('honeypot', honeypot);
-    if (resumeFile) {
-      formData.append('resume', resumeFile);
-    }
+    // Launch default email client
+    window.location.href = mailtoUrl;
 
-    try {
-      const response = await fetch('/api/applications', {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-        },
-        body: formData,
-      });
-
-      let data: any = null;
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        data = await response.json();
-      } else {
-        const text = await response.text();
-        try {
-          data = JSON.parse(text);
-        } catch {
-          throw new Error(
-            response.ok
-              ? 'Server returned an invalid response format.'
-              : `Server error (${response.status}): ${response.statusText || 'Unable to process application'}`
-          );
-        }
-      }
-
-      if (!response.ok || !data?.success) {
-        const errorMsg = data?.message || data?.error || 'Failed to submit application. Please try again.';
-        throw new Error(errorMsg);
-      }
-
-      // ONLY display success state and reset form upon verified successful response
-      setSubmittedApplication({
-        id: data.applicationId || `NJ-APP-2026-${Date.now().toString(36).toUpperCase()}`,
-        name: applicantName.trim(),
-        role: selectedRole.title,
-        fileName: resumeFile?.name || 'Resume.pdf',
-      });
-
-      // Reset form fields
-      setApplicantName('');
-      setApplicantEmail('');
-      setApplicantPhone('');
-      setApplicantLocation('');
-      setApplicantExperience('0-2 Years');
-      setApplicantPortfolio('');
-      setResumeFile(null);
-      setConsent(false);
-      setClientErrors({});
-    } catch (err: any) {
-      console.error('Application transmission error:', err);
-      setServerError(err.message || 'Failed to submit application. Please check your connection or email info@njuregroup.in directly.');
-    } finally {
-      setIsSubmitting(false);
-    }
+    // Display confirmation receipt state
+    setSubmittedApplication({
+      id: refId,
+      name: applicantName.trim(),
+      role: selectedRole.title,
+      fileName: resumeFile?.name || 'Resume Document',
+    });
   };
 
   return (
@@ -365,41 +326,50 @@ ${applicantName || 'Candidate'}
             </button>
 
             {submittedApplication ? (
-              /* Confirmed Application Success State */
+              /* Confirmed Application Receipt State */
               <div className="py-8 text-center" role="status" aria-live="polite">
-                <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3">
-                  <CheckCircle2 className="w-8 h-8" />
+                <div className="w-14 h-14 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center mx-auto mb-3">
+                  <Mail className="w-7 h-7" />
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900 mb-1">Application Received</h3>
+                <h3 className="text-2xl font-bold text-slate-900 mb-1">Application Email Generated</h3>
                 <p className="text-xs text-slate-600 max-w-md mx-auto mb-6 leading-relaxed">
-                  Thank you, <strong className="text-slate-900">{submittedApplication.name}</strong>. Your application for <strong className="text-slate-900">{submittedApplication.role}</strong> and your CV (<span className="font-mono text-slate-700">{submittedApplication.fileName}</span>) have been securely registered and transmitted to our talent operations desk.
+                  Thank you, <strong className="text-slate-900">{submittedApplication.name}</strong>. Your application for <strong className="text-slate-900">{submittedApplication.role}</strong> has been generated with a unique reference ID.
                 </p>
 
                 <div className="bg-slate-50 border border-slate-200 rounded p-4 max-w-sm mx-auto mb-6 text-xs text-left font-mono space-y-1.5">
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Application ID:</span>
+                    <span className="text-slate-500">Unique Reference ID:</span>
                     <span className="font-bold text-blue-700">{submittedApplication.id}</span>
                   </div>
                   <div className="flex justify-between border-t border-slate-200 pt-1.5">
-                    <span className="text-slate-500">Target Role:</span>
-                    <span className="text-slate-800">{submittedApplication.role}</span>
+                    <span className="text-slate-500">Recipient Email:</span>
+                    <span className="text-slate-800">info@njuregroup.in</span>
                   </div>
                   <div className="flex justify-between border-t border-slate-200 pt-1.5">
-                    <span className="text-slate-500">Document Status:</span>
-                    <span className="text-emerald-700 font-semibold">CV Attached & Logged</span>
+                    <span className="text-slate-500">Talent Partner CC:</span>
+                    <span className="text-slate-800">neerej.suresan.s@gmail.com</span>
                   </div>
                   <div className="flex justify-between border-t border-slate-200 pt-1.5">
-                    <span className="text-slate-500">Next Step:</span>
-                    <span className="text-slate-800">Phone screening within 48h</span>
+                    <span className="text-slate-500">Resume Document:</span>
+                    <span className="text-emerald-700 font-semibold">{submittedApplication.fileName}</span>
                   </div>
                 </div>
 
-                <button
-                  onClick={() => setSelectedRole(null)}
-                  className="px-6 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded transition-colors cursor-pointer"
-                >
-                  Close Window
-                </button>
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                  <button
+                    onClick={() => { window.location.href = createMailtoUrl(submittedApplication.id); }}
+                    className="px-4 py-2 text-xs font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded transition-colors cursor-pointer flex items-center gap-1.5"
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>Re-open in Mail App</span>
+                  </button>
+                  <button
+                    onClick={() => { setSelectedRole(null); setSubmittedApplication(null); }}
+                    className="px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded transition-colors cursor-pointer"
+                  >
+                    Close Window
+                  </button>
+                </div>
               </div>
             ) : (
               /* Role Details & Submission Form */
@@ -636,41 +606,21 @@ ${applicantName || 'Candidate'}
                     )}
                   </div>
 
-                  <div className="pt-3 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100">
+                  <div className="pt-3 flex items-center justify-end gap-3 border-t border-slate-100">
                     <button
                       type="button"
-                      onClick={handleOpenMailClient}
-                      title="Open your default email app with candidate details"
-                      className="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded transition-colors cursor-pointer flex items-center gap-1.5"
+                      onClick={() => setSelectedRole(null)}
+                      className="px-4 py-2 text-xs text-slate-600 hover:text-slate-900 cursor-pointer"
                     >
-                      <Mail className="w-3.5 h-3.5 text-slate-600" />
-                      <span>Send via Email App</span>
+                      Cancel
                     </button>
-
-                    <div className="flex items-center gap-2.5">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedRole(null)}
-                        disabled={isSubmitting}
-                        className="px-3.5 py-2 text-xs text-slate-600 hover:text-slate-900 cursor-pointer disabled:opacity-50"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white bg-blue-700 hover:bg-blue-800 rounded transition-colors cursor-pointer flex items-center gap-2 disabled:opacity-60 shadow-xs"
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            <span>Uploading & Transmitting...</span>
-                          </>
-                        ) : (
-                          <span>Submit Application</span>
-                        )}
-                      </button>
-                    </div>
+                    <button
+                      type="submit"
+                      className="px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-white bg-blue-700 hover:bg-blue-800 rounded transition-colors cursor-pointer flex items-center gap-2 shadow-xs"
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                      <span>Submit Application via Email</span>
+                    </button>
                   </div>
                 </form>
               </div>

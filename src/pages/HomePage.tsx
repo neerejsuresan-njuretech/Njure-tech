@@ -58,10 +58,6 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-3xl">
-            {/* Immediate Capability Kicker */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-blue-50 border border-blue-200 text-blue-800 text-xs font-bold uppercase tracking-wider mb-5">
-              <span>REMOTE OPERATIONS • CUSTOMER SUPPORT • BACK OFFICE</span>
-            </div>
 
             {/* Core Value Headline */}
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.12] mb-6">
