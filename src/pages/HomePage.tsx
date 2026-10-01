@@ -64,12 +64,9 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               Build your operations team around the budget you already have.
             </h1>
 
-            {/* Value Proposition answering What, Who, Why */}
-            <div className="space-y-3 mb-8 max-w-2xl text-base text-slate-600 leading-relaxed">
+            {/* Value Proposition */}
+            <div className="mb-8 max-w-2xl text-base text-slate-600 leading-relaxed">
               <p>
-                Customer support, back-office data processing, e-commerce operations, and outbound calling delivered by dedicated, managed remote teams.
-              </p>
-              <p className="text-sm text-slate-500">
                 Engineered for growing digital brands, e-commerce retailers, and tech startups needing reliable operational execution without rigid agency minimums or corporate overhead. We take zero agency cut—distributing project profits directly to our remote specialists as business partners for superior dedication and near-zero turnover.
               </p>
             </div>

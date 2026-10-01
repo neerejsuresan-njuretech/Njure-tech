@@ -5,14 +5,11 @@ import {
   Clock, 
   ArrowRight, 
   CheckCircle, 
-  CheckCircle2, 
   Users, 
   HeartHandshake, 
   X, 
   FileText, 
   Upload, 
-  AlertCircle, 
-  Loader2,
   Mail
 } from 'lucide-react';
 import { COMPANY_INFO, CAREER_LISTINGS, CareerItem } from '../data/companyData';
@@ -27,18 +24,17 @@ export const CareersPage: React.FC = () => {
   const [applicantLocation, setApplicantLocation] = useState('Kerala, India (100% Remote)');
   const [applicantExperience, setApplicantExperience] = useState('0 – 2 Years');
   const [applicantPortfolio, setApplicantPortfolio] = useState('');
-  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [applicantIntro, setApplicantIntro] = useState('');
+  const [applicantWhyHire, setApplicantWhyHire] = useState('');
   const [consent, setConsent] = useState(false);
   const [honeypot, setHoneypot] = useState('');
 
   const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [serverError, setServerError] = useState<string | null>(null);
   const [submittedApplication, setSubmittedApplication] = useState<{
     id: string;
     name: string;
     role: string;
-    fileName: string;
+    experience: string;
   } | null>(null);
 
   const handleOpenApplyModal = (role: CareerItem) => {
@@ -47,51 +43,11 @@ export const CareersPage: React.FC = () => {
     setApplicantEmail('');
     setApplicantPhone('');
     setApplicantPortfolio('');
-    setResumeFile(null);
+    setApplicantIntro('');
+    setApplicantWhyHire('');
     setConsent(false);
     setClientErrors({});
-    setServerError(null);
     setSubmittedApplication(null);
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const allowedTypes = [
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    ];
-
-    const fileExt = file.name.split('.').pop()?.toLowerCase() || '';
-    const isAllowedExt = ['pdf', 'doc', 'docx'].includes(fileExt);
-    const isAllowedMime = allowedTypes.includes(file.type);
-
-    if (!isAllowedMime && !isAllowedExt) {
-      setClientErrors((prev) => ({
-        ...prev,
-        resume: 'Invalid file format. Please upload a PDF, DOC, or DOCX document.',
-      }));
-      setResumeFile(null);
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      setClientErrors((prev) => ({
-        ...prev,
-        resume: 'File is too large. Maximum resume size is 10 MB.',
-      }));
-      setResumeFile(null);
-      return;
-    }
-
-    setClientErrors((prev) => {
-      const next = { ...prev };
-      delete next.resume;
-      return next;
-    });
-    setResumeFile(file);
   };
 
   const validate = (): boolean => {
@@ -110,8 +66,12 @@ export const CareersPage: React.FC = () => {
       errors.phone = 'Please provide a valid contact phone number with country code.';
     }
 
-    if (!resumeFile) {
-      errors.resume = 'Please attach your CV / Resume (PDF or DOC format).';
+    if (!applicantIntro.trim() || applicantIntro.trim().length < 10) {
+      errors.intro = 'Please introduce yourself (at least 10 characters).';
+    }
+
+    if (!applicantWhyHire.trim() || applicantWhyHire.trim().length < 10) {
+      errors.whyHire = 'Please explain why we should hire you (at least 10 characters).';
     }
 
     if (!consent) {
@@ -153,10 +113,14 @@ CANDIDATE DETAILS:
 - Target Role:      ${selectedRole.title} (${selectedRole.location} · ${selectedRole.type})
 - Experience Level: ${applicantExperience}
 - Portfolio / Link: ${applicantPortfolio || 'Not provided'}
-- Selected Resume:  ${resumeFile?.name || 'Attached to this email'}
 
-(I have attached my updated resume / CV document to this email message.)
+INTRODUCE YOURSELF:
+${applicantIntro || 'Not provided'}
 
+WHY SHOULD WE HIRE YOU:
+${applicantWhyHire || 'Not provided'}
+
+========================================
 Thank you,
 ${applicantName || 'Candidate'}
 `);
@@ -183,7 +147,7 @@ ${applicantName || 'Candidate'}
       id: refId,
       name: applicantName.trim(),
       role: selectedRole.title,
-      fileName: resumeFile?.name || 'Resume Document',
+      experience: applicantExperience,
     });
   };
 
@@ -302,7 +266,7 @@ ${applicantName || 'Candidate'}
             href={`mailto:${COMPANY_INFO.inquiriesEmail}?subject=General Application - Njure Tech Operations`}
             className="text-xs font-semibold text-blue-700 hover:text-blue-800 inline-flex items-center gap-1 font-mono"
           >
-            <span>Email your CV directly to {COMPANY_INFO.inquiriesEmail}</span>
+            <span>Email your profile directly to {COMPANY_INFO.inquiriesEmail}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </a>
         </div>
@@ -342,16 +306,20 @@ ${applicantName || 'Candidate'}
                     <span className="font-bold text-blue-700">{submittedApplication.id}</span>
                   </div>
                   <div className="flex justify-between border-t border-slate-200 pt-1.5">
+                    <span className="text-slate-500">Target Role:</span>
+                    <span className="text-slate-800">{submittedApplication.role}</span>
+                  </div>
+                  <div className="flex justify-between border-t border-slate-200 pt-1.5">
+                    <span className="text-slate-500">Experience:</span>
+                    <span className="text-slate-800">{submittedApplication.experience}</span>
+                  </div>
+                  <div className="flex justify-between border-t border-slate-200 pt-1.5">
                     <span className="text-slate-500">Recipient Email:</span>
                     <span className="text-slate-800">info@njuregroup.in</span>
                   </div>
                   <div className="flex justify-between border-t border-slate-200 pt-1.5">
                     <span className="text-slate-500">Talent Partner CC:</span>
                     <span className="text-slate-800">neerej.suresan.s@gmail.com</span>
-                  </div>
-                  <div className="flex justify-between border-t border-slate-200 pt-1.5">
-                    <span className="text-slate-500">Resume Document:</span>
-                    <span className="text-emerald-700 font-semibold">{submittedApplication.fileName}</span>
                   </div>
                 </div>
 
@@ -405,29 +373,6 @@ ${applicantName || 'Candidate'}
                     </ul>
                   </div>
                 </div>
-
-                {serverError && (
-                  <div role="alert" className="mb-4 p-3.5 rounded-lg bg-red-50 border border-red-200 text-red-800 text-xs flex flex-col gap-2.5">
-                    <div className="flex items-start gap-2">
-                      <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                      <div>
-                        <span className="font-bold block mb-0.5">Submission Notice</span>
-                        <span>{serverError}</span>
-                      </div>
-                    </div>
-                    <div className="pt-2 border-t border-red-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                      <span className="text-[11px] text-red-700">You can dispatch your application directly via email:</span>
-                      <button
-                        type="button"
-                        onClick={handleOpenMailClient}
-                        className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-red-700 hover:bg-red-800 text-white rounded text-xs font-semibold shadow-xs transition-colors cursor-pointer w-full sm:w-auto"
-                      >
-                        <Mail className="w-3.5 h-3.5" />
-                        <span>Open Email App with Details</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
 
                 {/* Application Form */}
                 <form onSubmit={handleSubmitApplication} noValidate className="border-t border-slate-100 pt-6 space-y-3.5">
@@ -551,40 +496,61 @@ ${applicantName || 'Candidate'}
                     </div>
                   </div>
 
-                  {/* Resume Upload Box */}
+                  {/* Introduce Yourself */}
                   <div>
                     <label className="block text-xs font-medium text-slate-700 mb-1">
-                      Upload CV / Resume (PDF, DOC, DOCX up to 10 MB) <span className="text-red-500">*</span>
+                      Introduce Yourself <span className="text-red-500">*</span>
                     </label>
-                    <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
-                      clientErrors.resume ? 'border-red-400 bg-red-50/20' : 'border-slate-300 hover:border-blue-500 bg-slate-50/50'
-                    }`}>
-                      <input
-                        type="file"
-                        id="resume-upload"
-                        accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                        onChange={handleFileChange}
-                        className="hidden"
-                      />
-                      <label htmlFor="resume-upload" className="cursor-pointer block">
-                        <Upload className="w-6 h-6 text-slate-400 mx-auto mb-1.5" />
-                        {resumeFile ? (
-                          <div className="flex items-center justify-center gap-1.5 text-xs text-emerald-700 font-semibold">
-                            <FileText className="w-4 h-4" />
-                            <span>{resumeFile.name} ({(resumeFile.size / 1024).toFixed(0)} KB)</span>
-                          </div>
-                        ) : (
-                          <>
-                            <span className="text-xs font-medium text-blue-700 hover:underline block">
-                              Click to choose document or drag & drop here
-                            </span>
-                            <span className="text-[11px] text-slate-500">Accepted: PDF, DOC, DOCX (Max 10MB)</span>
-                          </>
-                        )}
-                      </label>
-                    </div>
-                    {clientErrors.resume && (
-                      <span className="text-[11px] text-red-600 mt-1 block">{clientErrors.resume}</span>
+                    <textarea
+                      rows={3}
+                      required
+                      value={applicantIntro}
+                      onChange={(e) => {
+                        setApplicantIntro(e.target.value);
+                        if (clientErrors.intro) {
+                          setClientErrors((prev) => {
+                            const next = { ...prev };
+                            delete next.intro;
+                            return next;
+                          });
+                        }
+                      }}
+                      placeholder="Briefly introduce yourself, your educational/professional background, communication strengths, and daily availability..."
+                      className={`w-full px-3 py-2 bg-white border rounded text-xs text-slate-900 focus:outline-none focus:border-blue-600 ${
+                        clientErrors.intro ? 'border-red-400 bg-red-50/20' : 'border-slate-300'
+                      }`}
+                    />
+                    {clientErrors.intro && (
+                      <span className="text-[11px] text-red-600 mt-1 block">{clientErrors.intro}</span>
+                    )}
+                  </div>
+
+                  {/* Why Should We Hire You */}
+                  <div>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">
+                      Why should we hire you? <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      rows={3}
+                      required
+                      value={applicantWhyHire}
+                      onChange={(e) => {
+                        setApplicantWhyHire(e.target.value);
+                        if (clientErrors.whyHire) {
+                          setClientErrors((prev) => {
+                            const next = { ...prev };
+                            delete next.whyHire;
+                            return next;
+                          });
+                        }
+                      }}
+                      placeholder="Why are you interested in this role and what makes you a standout fit for our remote partner pod?"
+                      className={`w-full px-3 py-2 bg-white border rounded text-xs text-slate-900 focus:outline-none focus:border-blue-600 ${
+                        clientErrors.whyHire ? 'border-red-400 bg-red-50/20' : 'border-slate-300'
+                      }`}
+                    />
+                    {clientErrors.whyHire && (
+                      <span className="text-[11px] text-red-600 mt-1 block">{clientErrors.whyHire}</span>
                     )}
                   </div>
 

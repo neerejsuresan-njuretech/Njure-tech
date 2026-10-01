@@ -3,12 +3,9 @@ import {
   Mail, 
   Clock, 
   ShieldCheck, 
-  CheckCircle2, 
   ArrowRight, 
   Globe, 
   Laptop, 
-  AlertCircle, 
-  Loader2, 
   CheckCircle 
 } from 'lucide-react';
 import { COMPANY_INFO } from '../data/companyData';
@@ -39,8 +36,6 @@ export const ContactPage: React.FC = () => {
   });
 
   const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [serverError, setServerError] = useState<string | null>(null);
   const [submittedInquiry, setSubmittedInquiry] = useState<{
     id: string;
     name: string;
@@ -86,7 +81,6 @@ export const ContactPage: React.FC = () => {
         return next;
       });
     }
-    if (serverError) setServerError(null);
   };
 
   const generateUniqueRefId = () => {
@@ -156,7 +150,6 @@ ${formData.message || 'Not provided'}
 
   const handleReset = () => {
     setSubmittedInquiry(null);
-    setServerError(null);
     setClientErrors({});
     setFormData({
       name: '',
@@ -324,33 +317,6 @@ ${formData.message || 'Not provided'}
                   <p className="text-xs text-slate-500 mb-6">
                     Fill out this form and click below to open your email client prefilled with your project parameters and an automatic reference ID.
                   </p>
-
-                  {serverError && (
-                    <div 
-                      role="alert" 
-                      aria-live="polite" 
-                      className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-800 text-xs flex flex-col gap-3"
-                    >
-                      <div className="flex items-start gap-2.5">
-                        <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                        <div>
-                          <span className="font-bold block mb-0.5">Submission Notice</span>
-                          <span>{serverError}</span>
-                        </div>
-                      </div>
-                      <div className="pt-2 border-t border-red-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                        <span className="text-[11px] text-red-700">You can dispatch this inquiry directly via your email client:</span>
-                        <button
-                          type="button"
-                          onClick={handleOpenMailClient}
-                          className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-red-700 hover:bg-red-800 text-white rounded text-xs font-semibold shadow-xs transition-colors cursor-pointer w-full sm:w-auto"
-                        >
-                          <Mail className="w-3.5 h-3.5" />
-                          <span>Open Email App with Filled Details</span>
-                        </button>
-                      </div>
-                    </div>
-                  )}
 
                   <form onSubmit={handleSubmit} noValidate className="space-y-4">
                     {/* Honeypot field for bot/spam trap (hidden from users) */}
