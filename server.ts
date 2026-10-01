@@ -75,6 +75,46 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
+// Explicit SEO, AI Crawlers & Sitemap Endpoints
+const PUBLIC_DIR = path.resolve('public');
+app.use(express.static(PUBLIC_DIR, { maxAge: '1h' }));
+
+app.get('/robots.txt', (_req: Request, res: Response) => {
+  const filePath = path.join(PUBLIC_DIR, 'robots.txt');
+  if (fs.existsSync(filePath)) {
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    return res.sendFile(filePath);
+  }
+  res.type('text/plain').send("User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: https://tech.njuregroup.in/sitemap.xml\n");
+});
+
+app.get('/sitemap.xml', (_req: Request, res: Response) => {
+  const filePath = path.join(PUBLIC_DIR, 'sitemap.xml');
+  if (fs.existsSync(filePath)) {
+    res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+    return res.sendFile(filePath);
+  }
+  res.status(404).send('Sitemap not found');
+});
+
+app.get('/llms.txt', (_req: Request, res: Response) => {
+  const filePath = path.join(PUBLIC_DIR, 'llms.txt');
+  if (fs.existsSync(filePath)) {
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    return res.sendFile(filePath);
+  }
+  res.status(404).send('LLMs specification not found');
+});
+
+app.get('/site.webmanifest', (_req: Request, res: Response) => {
+  const filePath = path.join(PUBLIC_DIR, 'site.webmanifest');
+  if (fs.existsSync(filePath)) {
+    res.setHeader('Content-Type', 'application/manifest+json; charset=utf-8');
+    return res.sendFile(filePath);
+  }
+  res.status(404).send('Manifest not found');
+});
+
 // Input Sanitization Helpers
 function sanitizeText(value: unknown, maxLength = 2000): string {
   if (typeof value !== 'string') return '';
