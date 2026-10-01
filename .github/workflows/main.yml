@@ -2,7 +2,17 @@ name: Deploy Vite App
 
 on:
   push:
-    branches: [ "main" ] # or "master"
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -17,8 +27,8 @@ jobs:
           node-version: 20
           cache: 'npm'
           
-      - name: Install dependencies (Bun/NPM)
-        run: npm install # or bun install if using bun.lock
+      - name: Install dependencies
+        run: npm install
         
       - name: Build project
         run: npm run build
@@ -41,9 +51,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-  
