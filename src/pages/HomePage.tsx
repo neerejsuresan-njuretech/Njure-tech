@@ -16,7 +16,7 @@ import {
   HeartHandshake
 } from 'lucide-react';
 import { COMPANY_INFO, BPO_SERVICES, FUTURE_ROADMAP } from '../data/companyData';
-import { GlobalNetworkGlobe } from '../components/3d/GlobalNetworkGlobe';
+import { InteractiveBackground3D } from '../components/3d/InteractiveBackground3D';
 import { TiltCard } from '../components/motion/TiltCard';
 import { CountUpNumber } from '../components/motion/CountUpNumber';
 
@@ -32,9 +32,12 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
   return (
     <div className="bg-slate-50">
-      {/* Hero Section */}
-      <section className="bg-white border-b border-slate-200 py-18 lg:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Hero Section with 3D Ambient Wave & Geometry Background */}
+      <section className="bg-white border-b border-slate-200 py-18 lg:py-24 relative overflow-hidden">
+        {/* Interactive 3D Mesh Background */}
+        <InteractiveBackground3D variant="light" density="normal" className="opacity-75" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-3xl">
 
             {/* Service-Specific Headline */}
@@ -151,30 +154,12 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* Interactive 3D Global Operations Network Mesh */}
-      <section className="py-16 sm:py-24 bg-slate-950 text-white relative overflow-hidden border-y border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mb-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-semibold uppercase tracking-wider mb-3">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Real-Time Spatial Infrastructure</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4">
-              Decentralized Global Operations Network
-            </h2>
-            <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-              Explore our live 3D distributed routing mesh. Our South Asia operations pods operate in continuous synchrony with client desks across North America, the UK, Europe, and the Middle East—delivering 24/7 client-budget operations with port-locked endpoint security.
-            </p>
-          </div>
-
-          {/* 3D WebGL Canvas Component */}
-          <GlobalNetworkGlobe />
-        </div>
-      </section>
-
       {/* Client-Budget-Oriented & Zero-Cut Partner Model */}
-      <section className="py-20 bg-slate-900 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-slate-900 text-white relative overflow-hidden">
+        {/* Subtle 3D Geometric Lattice Background */}
+        <InteractiveBackground3D variant="dark" density="low" className="opacity-35" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-3xl mb-12">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-cyan-950/80 border border-cyan-800 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-3">
               <HeartHandshake className="w-3.5 h-3.5" />
