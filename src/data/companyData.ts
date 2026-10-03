@@ -43,6 +43,20 @@ export interface FAQItem {
   category: 'Model & Pricing' | 'Security & Controls' | 'Operations' | 'Services' | 'General';
 }
 
+export interface SelectedCapability {
+  id: string;
+  badge: string;
+  title: string;
+  clientIndustry: string;
+  problem: string;
+  scope: string[];
+  team: string;
+  workflow: string;
+  implementation: string;
+  measuredOutcome: string;
+  timePeriod: string;
+}
+
 export const COMPANY_INFO = {
   name: 'Njure Tech',
   legalName: 'Njure Tech',
@@ -554,3 +568,95 @@ export const GENERAL_FAQS: FAQItem[] = [
       'Njure Tech is the dedicated technology and business process operations company under Njure Group (njuregroup.in). It operates independently in the cloud to provide agile, client-budget-oriented operational execution for modern digital businesses worldwide.',
   },
 ];
+
+export const SELECTED_CAPABILITIES: SelectedCapability[] = [
+  {
+    id: 'ecommerce-rto-reduction',
+    badge: 'Operational Capability Blueprint 01',
+    title: 'E-Commerce COD Confirmation & NDR Logistics Exception Management',
+    clientIndustry: 'D2C Consumer Retail & Marketplace Merchandising',
+    problem:
+      'High Return-to-Origin (RTO) rates on Cash-on-Delivery (COD) orders and delayed courier delivery exception triage leading to dead shipping spend, blocked inventory, and elevated buyer disputes.',
+    scope: [
+      'Pre-dispatch telephone & WhatsApp order address and buyer intent confirmation',
+      '3PL courier Non-Delivery Report (NDR) triage and immediate buyer re-scheduling',
+      'Courier tracking escalation with aggregators (Shiprocket / ClickPost / Delhivery)',
+      'Returns verification and warehouse photo check prior to refund authorization',
+    ],
+    team: '3 Dedicated Remote E-Commerce Specialists + 1 Rotating Quality Supervisor (Dual-shift coverage: 09:00 - 21:00 IST)',
+    workflow:
+      'Orders flagged by risk heuristics -> outbound phone and WhatsApp confirmation within 30 minutes -> address corrections updated in Shopify -> dispatch released -> real-time NDR webhook notification triggers instant buyer contact to re-attempt delivery.',
+    implementation:
+      'Standardized 7-day onboarding connecting directly to client store admin and 3PL courier dashboards via client-issued roles; clean-screen workstation policies enforced; bilateral NDAs executed prior to access.',
+    measuredOutcome:
+      '25% – 35% reduction in Return-to-Origin (RTO) orders compared to unverified baseline, < 30-minute confirmation turnaround for high-risk orders, and sub-24-hour return ticket authorization.',
+    timePeriod: '14-day calibrated pilot transitioning into monthly rolling operational delivery.',
+  },
+  {
+    id: 'backoffice-kyc-verification',
+    badge: 'Operational Capability Blueprint 02',
+    title: 'High-Accuracy Back-Office Data Operations & KYC Document Verification',
+    clientIndustry: 'Fintech & Regulated Digital Platforms',
+    problem:
+      'Rapid influx of customer onboarding documents and vendor bills accumulating in administrative queues, threatening regulatory turnaround compliance and causing vendor payment reconciliation delays.',
+    scope: [
+      'Customer identity document validation (Aadhaar / PAN / Corporate registry)',
+      'Multi-pass spreadsheet data cleansing, deduplication, and CRM hygiene',
+      'Vendor invoice matching, line-item transcription, and ledger reconciliation',
+      'Continuous compliance audit logging and discrepancy reporting',
+    ],
+    team: '4 Dedicated Remote Data Operations Associates + 1 Quality Lead (Dual-pass human validation structure)',
+    workflow:
+      'Batch ingestion via secure client cloud drive -> primary structured data transcription -> automated validation check -> secondary independent supervisor verification -> daily batch closure report.',
+    implementation:
+      'Client-managed identity with multi-factor authentication (MFA); USB mass-storage port locks on all endpoints; clean-desk standards with zero local file persistence; comprehensive data governance agreement.',
+    measuredOutcome:
+      '99.5%+ field-level data entry accuracy guaranteed through dual-pass human audit; same-day processing for standard 500-unit daily document batches; zero backlog rollover during peak cycles.',
+    timePeriod: 'Ongoing monthly sprints with daily batch unit reconciliation logs.',
+  },
+  {
+    id: 'customer-support-omnichannel',
+    badge: 'Operational Capability Blueprint 03',
+    title: 'Omnichannel Customer Support & Technical Helpdesk Operations',
+    clientIndustry: 'B2B SaaS & Digital Consumer Platforms',
+    problem:
+      'Inbound support volume overwhelming internal product team; first response times on live chat and email helpdesk exceeding 4 hours, creating user friction and elevated churn risk.',
+    scope: [
+      'Live website chat assistance & proactive customer engagement',
+      'Inbound telephone helpline & outbound callback support',
+      'Email ticket triage, classification, and Tier-1 technical resolution',
+      'Jira Service Management (JSM) & Zendesk bug ticket cross-linking',
+    ],
+    team: '3 Dedicated Customer Care Specialists + 1 Operational Team Lead (16-hour multi-shift coverage)',
+    workflow:
+      'Customer ticket ingested -> instant automatic acknowledgment -> triage against SOP knowledge base -> resolution within sub-2 minutes on chat -> bug escalation directly into engineering Jira queue -> supervisor QA score on closed tickets.',
+    implementation:
+      '5-day SOP ingestion and script calibration; integration into client Zendesk/JSM workspace with role-restricted credentials; daily 15-minute shift overlap logs ensuring zero dropped context.',
+    measuredOutcome:
+      'Sub-2 minute first response time across live channels, 95%+ first-contact resolution on standard inquiries, and consistent 4.8+/5.0 CSAT rating target.',
+    timePeriod: '7-day test queue pilot expanding into full monthly production roster.',
+  },
+  {
+    id: 'telecalling-lead-qualification',
+    badge: 'Operational Capability Blueprint 04',
+    title: 'Inbound Lead Qualification & Sales Discovery Appointment Booking',
+    clientIndustry: 'B2B Professional Services & Commercial Accounts',
+    problem:
+      'Inbound marketing ad leads turning cold due to delayed follow-ups (> 4 hours); high-cost sales account executives spending valuable hours cold-calling instead of closing qualified opportunities.',
+    scope: [
+      'Rapid speed-to-lead calling within 10 minutes of web form submission',
+      'BANT / MEDDPICC qualification check against client criteria',
+      'Live discovery meeting booking on account executives’ calendars',
+      'CRM contact enrichment and detailed conversation disposition tagging',
+    ],
+    team: '2 Dedicated Remote Voice Specialists + 1 Campaign Lead',
+    workflow:
+      'Inbound lead webhook received -> dialer contact initiated within 10 minutes -> structured discovery conversation -> qualification criteria confirmed -> calendar invite sent -> detailed disposition synced to HubSpot/Zoho CRM.',
+    implementation:
+      'Cloud telephony PBX routing; script objection handling workshop; call recording review and daily calibration standups; bilateral NDAs.',
+    measuredOutcome:
+      'Inbound lead contact within 10 minutes of submission; 45%–60% call connect rate across standard cadence; clean CRM records with structured meeting notes.',
+    timePeriod: 'Flexible month-to-month campaign pacing aligned with client marketing pipeline.',
+  },
+];
+

@@ -10,6 +10,7 @@ dotenv.config();
 
 import { db } from './src/db/index.ts';
 import { inquiries as inquiriesTable, applications as applicationsTable } from './src/db/schema.ts';
+import { injectPrerenderedRoute } from './src/server/routeRenderer.ts';
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '3000', 10);
@@ -79,37 +80,56 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
 const PUBLIC_DIR = path.resolve('public');
 app.use(express.static(PUBLIC_DIR, { maxAge: '1h' }));
 
-app.get('/robots.txt', (_req: Request, res: Response) => {
+app.all(['/robots.txt', '/robots.txt/'], (_req: Request, res: Response) => {
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.setHeader('X-Robots-Tag', 'all');
+
   const filePath = path.join(PUBLIC_DIR, 'robots.txt');
   if (fs.existsSync(filePath)) {
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     return res.sendFile(filePath);
   }
-  res.type('text/plain').send("User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: https://tech.njuregroup.in/sitemap.xml\n");
+  res.send("User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: https://tech.njuregroup.in/sitemap.xml\n");
 });
 
-app.get('/sitemap.xml', (_req: Request, res: Response) => {
+app.all(['/sitemap.xml', '/sitemap.xml/'], (_req: Request, res: Response) => {
+  res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.setHeader('X-Robots-Tag', 'all');
+
   const filePath = path.join(PUBLIC_DIR, 'sitemap.xml');
   if (fs.existsSync(filePath)) {
-    res.setHeader('Content-Type', 'application/xml; charset=utf-8');
     return res.sendFile(filePath);
   }
   res.status(404).send('Sitemap not found');
 });
 
-app.get('/llms.txt', (_req: Request, res: Response) => {
+app.all(['/llms.txt', '/llms.txt/'], (_req: Request, res: Response) => {
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.setHeader('X-Robots-Tag', 'all');
+
   const filePath = path.join(PUBLIC_DIR, 'llms.txt');
   if (fs.existsSync(filePath)) {
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     return res.sendFile(filePath);
   }
   res.status(404).send('LLMs specification not found');
 });
 
-app.get('/site.webmanifest', (_req: Request, res: Response) => {
+app.all(['/site.webmanifest', '/site.webmanifest/'], (_req: Request, res: Response) => {
+  res.setHeader('Content-Type', 'application/manifest+json; charset=utf-8');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+
   const filePath = path.join(PUBLIC_DIR, 'site.webmanifest');
   if (fs.existsSync(filePath)) {
-    res.setHeader('Content-Type', 'application/manifest+json; charset=utf-8');
     return res.sendFile(filePath);
   }
   res.status(404).send('Manifest not found');
@@ -361,9 +381,9 @@ app.post('/api/inquiries', rateLimiter, async (req: Request, res: Response) => {
       status: 'pending_review',
     };
 
-    // Save in Cloud SQL PostgreSQL database
+    // Save in Cloud SQL PostgreSQL database with fallback and timeout
     try {
-      await db.insert(inquiriesTable).values({
+      const dbPromise = db.insert(inquiriesTable).values({
         trackingId: inquiryId,
         name: sanitizedName,
         email: sanitizedEmail,
@@ -375,9 +395,12 @@ app.post('/api/inquiries', rateLimiter, async (req: Request, res: Response) => {
         message: sanitizedMessage,
         status: 'pending_review',
       });
+
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('DB Timeout')), 2000));
+      await Promise.race([dbPromise, timeoutPromise]);
       console.log(`[Cloud SQL] Inquiry ${inquiryId} successfully saved to PostgreSQL database.`);
     } catch (dbErr) {
-      console.error('Failed to save inquiry to Cloud SQL, falling back to local ledger:', dbErr);
+      console.warn('Cloud SQL unavailable or slow, persisting to local ledger:', dbErr);
       try {
         const existing: any[] = JSON.parse(fs.readFileSync(INQUIRIES_FILE, 'utf-8'));
         existing.unshift(record);
@@ -387,7 +410,7 @@ app.post('/api/inquiries', rateLimiter, async (req: Request, res: Response) => {
       }
     }
 
-    // Notify Operations Team
+    // Notify Operations Team (Asynchronous dispatch)
     const emailBody = `
 New Client BPO Inquiry Received
 ================================
@@ -523,9 +546,9 @@ app.post('/api/applications', rateLimiter, handleUpload, async (req: Request, re
       status: 'under_review',
     };
 
-    // Save in Cloud SQL PostgreSQL database
+    // Save in Cloud SQL PostgreSQL database with fallback and timeout
     try {
-      await db.insert(applicationsTable).values({
+      const dbPromise = db.insert(applicationsTable).values({
         applicationId: applicationId,
         name: sanitizedName,
         email: sanitizedEmail,
@@ -537,9 +560,12 @@ app.post('/api/applications', rateLimiter, handleUpload, async (req: Request, re
         resumeFileName: safeResumeOriginalName,
         status: 'under_review',
       });
+
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('DB Timeout')), 2000));
+      await Promise.race([dbPromise, timeoutPromise]);
       console.log(`[Cloud SQL] Application ${applicationId} successfully saved to PostgreSQL database.`);
     } catch (dbErr) {
-      console.error('Failed to save application to Cloud SQL, falling back to local ledger:', dbErr);
+      console.warn('Cloud SQL unavailable or slow, persisting to local ledger:', dbErr);
       try {
         const existing: any[] = JSON.parse(fs.readFileSync(APPLICATIONS_FILE, 'utf-8'));
         existing.unshift(record);
@@ -618,14 +644,55 @@ async function startServer() {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true, host: '0.0.0.0', port: PORT },
-      appType: 'spa',
+      appType: 'custom',
     });
     app.use(vite.middlewares);
+
+    // Route-specific SEO and crawler content injection in development mode
+    app.get('*', async (req: Request, res: Response, next: NextFunction) => {
+      // Pass through API routes and static asset requests
+      if (req.path.startsWith('/api') || (req.path.includes('.') && !req.path.endsWith('.html'))) {
+        return next();
+      }
+
+      try {
+        const templatePath = path.resolve('index.html');
+        let template = fs.readFileSync(templatePath, 'utf-8');
+        template = await vite.transformIndexHtml(req.originalUrl, template);
+        const html = injectPrerenderedRoute(template, req.path);
+
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('X-Robots-Tag', 'index, follow');
+        return res.status(200).send(html);
+      } catch (e: any) {
+        vite.ssrFixStacktrace(e);
+        next(e);
+      }
+    });
   } else {
     const distPath = path.resolve('dist');
-    app.use(express.static(distPath));
-    app.get('*', (_req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+    // Static assets without automatic directory index serving
+    app.use(express.static(distPath, { index: false }));
+
+    // Route-specific SEO and crawler content injection in production mode
+    app.get('*', (req: Request, res: Response, next: NextFunction) => {
+      if (req.path.startsWith('/api') || (req.path.includes('.') && !req.path.endsWith('.html'))) {
+        return next();
+      }
+
+      try {
+        const templatePath = path.join(distPath, 'index.html');
+        if (fs.existsSync(templatePath)) {
+          const template = fs.readFileSync(templatePath, 'utf-8');
+          const html = injectPrerenderedRoute(template, req.path);
+          res.setHeader('Content-Type', 'text/html; charset=utf-8');
+          res.setHeader('X-Robots-Tag', 'index, follow');
+          return res.status(200).send(html);
+        }
+        res.status(404).send('Page not found');
+      } catch (e) {
+        next(e);
+      }
     });
   }
 

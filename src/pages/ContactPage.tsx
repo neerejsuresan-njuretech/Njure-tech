@@ -6,7 +6,11 @@ import {
   ArrowRight, 
   Globe, 
   Laptop, 
-  CheckCircle 
+  CheckCircle, 
+  AlertCircle,
+  Loader2,
+  Copy,
+  ExternalLink
 } from 'lucide-react';
 import { COMPANY_INFO } from '../data/companyData';
 import { Breadcrumb } from '../components/Breadcrumb';
@@ -37,30 +41,35 @@ export const ContactPage: React.FC = () => {
   });
 
   const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState(false);
+
   const [submittedInquiry, setSubmittedInquiry] = useState<{
     id: string;
     name: string;
     company: string;
     service: string;
     budget: string;
+    message: string;
   } | null>(null);
 
   const validate = (): boolean => {
     const errors: Record<string, string> = {};
 
     if (!formData.name.trim() || formData.name.trim().length < 2) {
-      errors.name = 'Please enter your full name (at least 2 characters).';
+      errors.name = 'Please enter your full name (minimum 2 characters).';
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email.trim() || !emailRegex.test(formData.email.trim())) {
-      errors.email = 'Please provide a valid business email address.';
+      errors.email = 'Please provide a valid business or work email address.';
     }
 
     if (formData.phone.trim()) {
       const cleanPhone = formData.phone.replace(/[\s()-]/g, '');
       if (cleanPhone.length < 7 || cleanPhone.length > 18) {
-        errors.phone = 'Please provide a valid phone number with area or country code.';
+        errors.phone = 'Please provide a valid contact phone number with country code.';
       }
     }
 
@@ -82,15 +91,6 @@ export const ContactPage: React.FC = () => {
         return next;
       });
     }
-  };
-
-  const generateUniqueRefId = () => {
-    const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
-    let code = '';
-    for (let i = 0; i < 6; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return `NJ-INQ-2026-${code}`;
   };
 
   const createMailtoUrl = (refId: string) => {
@@ -124,33 +124,56 @@ ${formData.message || 'Not provided'}
     return `mailto:${recipient}?subject=${subject}&body=${body}`;
   };
 
-  const handleOpenMailClient = () => {
-    const refId = generateUniqueRefId();
-    window.location.href = createMailtoUrl(refId);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
-    const refId = generateUniqueRefId();
-    const mailtoUrl = createMailtoUrl(refId);
+    setIsSubmitting(true);
+    setSubmitError(null);
 
-    // Launch the user's default email client with all prefilled details
-    window.location.href = mailtoUrl;
+    try {
+      const response = await fetch('/api/inquiries', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-    // Display confirmation receipt state
-    setSubmittedInquiry({
-      id: refId,
-      name: formData.name.trim(),
-      company: formData.company.trim() || 'Direct Client Account',
-      service: formData.service,
-      budget: formData.budget,
-    });
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || result.message || 'Server failed to process your inquiry.');
+      }
+
+      setSubmittedInquiry({
+        id: result.inquiryId,
+        name: formData.name.trim(),
+        company: formData.company.trim() || 'Direct Client Account',
+        service: formData.service,
+        budget: formData.budget,
+        message: result.message || 'Inquiry registered in operational ledger.',
+      });
+    } catch (err: any) {
+      console.error('Inquiry submission error:', err);
+      setSubmitError(
+        err.message || 'Unable to connect to inquiry server. Please check your network or email info@njuregroup.in directly.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCopyId = (id: string) => {
+    navigator.clipboard.writeText(id);
+    setCopiedId(true);
+    setTimeout(() => setCopiedId(false), 2000);
   };
 
   const handleReset = () => {
     setSubmittedInquiry(null);
+    setSubmitError(null);
     setClientErrors({});
     setFormData({
       name: '',
@@ -177,10 +200,10 @@ ${formData.message || 'Not provided'}
             Client Inquiries & Budget Scoping
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight mb-4">
-            Contact Njure Tech & Request a Budget-Oriented BPO Proposal
+            Contact Njure Tech & Request an Operations Proposal
           </h1>
           <p className="text-base text-slate-600 leading-relaxed">
-            Connect directly with our remote operations leadership to discuss your support volume, schedule an operational scoping call, or request a budget-tailored proposal.
+            Connect directly with our remote operations leadership to discuss your support volume, schedule an operational scoping call, or request a budget-tailored proposal with zero agency cut.
           </p>
         </div>
 
@@ -217,7 +240,7 @@ ${formData.message || 'Not provided'}
                       >
                         {COMPANY_INFO.inquiriesEmail}
                       </a>
-                      <span className="block text-slate-400 mt-1">Official response within 2–4 hours on business days</span>
+                      <span className="block text-slate-400 mt-1">Direct response within 2–4 hours on business days</span>
                     </div>
                   </div>
 
@@ -228,7 +251,7 @@ ${formData.message || 'Not provided'}
                         Official Domain
                       </span>
                       <span className="font-mono text-blue-700 font-semibold">{COMPANY_INFO.domain}</span>
-                      <span className="block text-slate-400 mt-0.5">Parent Group: {COMPANY_INFO.parentDomain}</span>
+                      <span className="block text-slate-400 mt-0.5">Parent Entity: {COMPANY_INFO.parentDomain}</span>
                     </div>
                   </div>
 
@@ -239,7 +262,7 @@ ${formData.message || 'Not provided'}
                         Working Hours
                       </span>
                       <span>24/7 Follow-the-Sun Shift Coverage</span>
-                      <span className="block text-slate-400 mt-0.5">Coordinated coverage across IST, Gulf & Western time zones</span>
+                      <span className="block text-slate-400 mt-0.5">Coordinated shifts across IST, Gulf & Western time zones</span>
                     </div>
                   </div>
                 </div>
@@ -251,76 +274,109 @@ ${formData.message || 'Not provided'}
               </div>
             </div>
 
-            <div className="bg-blue-50 border border-blue-100 p-6 rounded-lg text-xs text-blue-900">
-              <h3 className="font-bold text-sm text-blue-950 mb-1">Fast 7-Day Pilot Program</h3>
-              <p className="text-blue-800 leading-relaxed">
-                Experience our dedicated customer care agents or data team with a one-week live pilot before committing to long-term operational scale.
+            {/* SLA Transparency Notice */}
+            <div className="bg-slate-900 text-white p-6 rounded-lg border border-slate-800 text-xs space-y-3">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-cyan-400 font-bold block">
+                Direct Operations Review
+              </span>
+              <h3 className="font-bold text-sm">No Middleman Markups</h3>
+              <p className="text-slate-300 leading-relaxed">
+                Your proposal request goes directly to operations directors who scope your roster, calculate agent hours, and pass client fees directly to specialists under our zero-cut partner model.
               </p>
             </div>
           </div>
 
-          {/* Right Column: Inquiry Form */}
+          {/* Right Column: Real Contact Form */}
           <div className="lg:col-span-7">
-            <div className="bg-white p-8 sm:p-10 rounded-lg border border-slate-200 shadow-2xs">
+            <div className="bg-white p-6 sm:p-10 rounded-lg border border-slate-200 shadow-2xs">
               {submittedInquiry ? (
-                /* Confirmed Transmission Receipt State */
-                <div className="py-8 text-center" role="status" aria-live="polite">
-                  <div className="w-14 h-14 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center mx-auto mb-4">
-                    <Mail className="w-7 h-7" />
+                /* Confirmed Inquiry State (Cloud SQL Record Confirmed) */
+                <div className="py-6 text-center" role="status" aria-live="polite">
+                  <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="w-8 h-8" />
                   </div>
-                  <h2 className="text-2xl font-bold text-slate-900 mb-2">Email Generated & Ready to Send</h2>
-                  <p className="text-sm text-slate-600 max-w-md mx-auto mb-6 leading-relaxed">
-                    Thank you, <strong className="text-slate-900">{submittedInquiry.name}</strong>. Your inquiry has been prefilled into your email application with a dedicated reference ID.
+                  <h2 className="text-2xl font-bold text-slate-900 mb-2">Proposal Request Registered</h2>
+                  <p className="text-xs text-slate-600 max-w-md mx-auto mb-6 leading-relaxed">
+                    Thank you, <strong className="text-slate-900">{submittedInquiry.name}</strong>. Your inquiry for <strong className="text-slate-900">{submittedInquiry.company}</strong> has been saved directly to our operations database and dispatched to our leadership team.
                   </p>
 
-                  <div className="bg-slate-50 border border-slate-200 rounded p-4 max-w-md mx-auto mb-8 text-xs text-left font-mono">
-                    <div className="flex justify-between py-1.5 border-b border-slate-200">
-                      <span className="text-slate-500">Unique Reference ID:</span>
-                      <span className="font-bold text-blue-700">{submittedInquiry.id}</span>
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-5 max-w-md mx-auto mb-6 text-xs text-left font-mono space-y-2.5">
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-500">Inquiry Tracking ID:</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-blue-700">{submittedInquiry.id}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopyId(submittedInquiry.id)}
+                          className="p-1 text-slate-400 hover:text-slate-700 rounded cursor-pointer"
+                          title="Copy Tracking ID"
+                        >
+                          {copiedId ? <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex justify-between py-1.5 border-b border-slate-200">
-                      <span className="text-slate-500">Recipient Email:</span>
-                      <span className="text-slate-800 font-medium">info@njuregroup.in</span>
+                    <div className="flex justify-between border-t border-slate-200 pt-2">
+                      <span className="text-slate-500">Target Service:</span>
+                      <span className="text-slate-800 font-semibold">{submittedInquiry.service}</span>
                     </div>
-                    <div className="flex justify-between py-1.5 border-b border-slate-200">
-                      <span className="text-slate-500">Service Category:</span>
-                      <span className="text-slate-800 font-medium">{submittedInquiry.service}</span>
+                    <div className="flex justify-between border-t border-slate-200 pt-2">
+                      <span className="text-slate-500">Budget Scope:</span>
+                      <span className="text-slate-800">{submittedInquiry.budget}</span>
                     </div>
-                    <div className="flex justify-between py-1.5 border-b border-slate-200">
-                      <span className="text-slate-500">Budget Parameter:</span>
-                      <span className="text-slate-800 font-medium">{submittedInquiry.budget}</span>
+                    <div className="flex justify-between border-t border-slate-200 pt-2">
+                      <span className="text-slate-500">Status:</span>
+                      <span className="text-emerald-700 font-semibold">Under Operational Review</span>
                     </div>
-                    <div className="flex justify-between py-1.5">
+                    <div className="flex justify-between border-t border-slate-200 pt-2">
                       <span className="text-slate-500">Response SLA:</span>
-                      <span className="text-emerald-700 font-semibold">Same Business Day</span>
+                      <span className="text-slate-800">Within 2–4 hours (business day)</span>
                     </div>
                   </div>
 
                   <div className="flex flex-wrap items-center justify-center gap-3">
-                    <button
-                      onClick={() => { window.location.href = createMailtoUrl(submittedInquiry.id); }}
-                      className="px-5 py-2.5 text-xs font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded transition-colors cursor-pointer flex items-center gap-2"
+                    <a
+                      href={createMailtoUrl(submittedInquiry.id)}
+                      className="px-5 py-2.5 text-xs font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded transition-colors inline-flex items-center gap-2"
                     >
                       <Mail className="w-4 h-4" />
-                      <span>Re-open in Mail App</span>
-                    </button>
+                      <span>Backup via Email Client</span>
+                    </a>
                     <button
+                      type="button"
                       onClick={handleReset}
                       className="px-5 py-2.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded transition-colors cursor-pointer"
                     >
-                      Fill Another Inquiry
+                      Submit Another Inquiry
                     </button>
                   </div>
                 </div>
               ) : (
-                /* Live Inquiry Submission Form */
+                /* Live Asynchronous Inquiry Submission Form */
                 <div>
                   <h2 className="text-xl font-bold text-slate-900 mb-1">
                     Request an Operations Consultation
                   </h2>
                   <p className="text-xs text-slate-500 mb-6">
-                    Fill out this form and click below to open your email client prefilled with your project parameters and an automatic reference ID.
+                    Fill out your requirements below to receive a customized BPO pod staffing plan inside your target budget.
                   </p>
+
+                  {submitError && (
+                    <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-xs text-red-800 flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+                      <div className="flex-grow">
+                        <strong className="block font-bold mb-0.5">Submission Error</strong>
+                        <span>{submitError}</span>
+                        <div className="mt-2">
+                          <a
+                            href={createMailtoUrl('NJ-INQ-FALLBACK')}
+                            className="font-bold underline text-red-900 hover:text-red-950 inline-flex items-center gap-1"
+                          >
+                            <span>Open in your email client instead &rarr;</span>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   <form onSubmit={handleSubmit} noValidate className="space-y-4">
                     {/* Honeypot field for bot/spam trap (hidden from users) */}
@@ -465,10 +521,10 @@ ${formData.message || 'Not provided'}
                     <div>
                       <div className="flex justify-between items-center mb-1">
                         <label htmlFor="budget" className="block text-xs font-medium text-slate-700">
-                          Target Monthly Budget (Client-Budget Oriented)
+                          Target Monthly Budget
                         </label>
                         <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                          Zero Agency Skim
+                          Zero Agency Cut
                         </span>
                       </div>
                       <select
@@ -485,7 +541,7 @@ ${formData.message || 'Not provided'}
                         <option value="₹1,50,000+ / $2,000+ monthly">₹1,50,000+ / $2,000+ monthly (Full Dedicated Pod)</option>
                       </select>
                       <p className="text-[11px] text-slate-500">
-                        We don't take a company cut. 100% of project profit flows directly to our remote specialists as business partners.
+                        We engineer the pod headcount directly around your budget with transparent unit economics.
                       </p>
                     </div>
 
@@ -515,15 +571,26 @@ ${formData.message || 'Not provided'}
                     <div className="pt-2">
                       <button
                         type="submit"
-                        className="w-full sm:w-auto px-8 py-3.5 text-xs font-bold uppercase tracking-wider text-white bg-blue-700 hover:bg-blue-800 rounded transition-colors shadow-xs cursor-pointer flex items-center justify-center gap-2"
+                        disabled={isSubmitting}
+                        className={`w-full sm:w-auto px-8 py-3.5 text-xs font-bold uppercase tracking-wider text-white bg-blue-700 hover:bg-blue-800 rounded transition-colors shadow-xs cursor-pointer flex items-center justify-center gap-2 ${
+                          isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+                        }`}
                       >
-                        <Mail className="w-4 h-4" />
-                        <span>Send via Email</span>
-                        <ArrowRight className="w-4 h-4" />
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Submitting Proposal Request...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Submit Operations Request</span>
+                            <ArrowRight className="w-4 h-4" />
+                          </>
+                        )}
                       </button>
 
                       <p className="text-[11px] text-slate-500 mt-3">
-                        Clicking generates an automatic tracking Reference ID in the subject line and opens your email application prefilled directly to <strong className="text-slate-700">info@njuregroup.in</strong>.
+                        Submissions are stored securely in our PostgreSQL operational ledger and immediately routed to our leadership desk at <strong className="text-slate-700">info@njuregroup.in</strong>.
                       </p>
                     </div>
                   </form>

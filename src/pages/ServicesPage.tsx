@@ -13,114 +13,46 @@ import {
   HelpCircle,
   ShieldCheck,
   Zap,
-  Globe
+  Globe,
+  Wrench,
+  Code2,
+  Server
 } from 'lucide-react';
 import { Breadcrumb } from '../components/Breadcrumb';
 import { DETAILED_SERVICES } from '../data/companyData';
 
-interface FAQItem {
-  id: string;
-  category: string;
-  question: string;
-  answer: string;
-  highlights: string[];
-}
-
 export const ServicesPage: React.FC = () => {
   const [openFaq, setOpenFaq] = useState<string | null>('faq-1');
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
-  const faqs: FAQItem[] = [
+  const faqs = [
     {
       id: 'faq-1',
       category: 'ITSM & Tooling',
       question: 'Can your team work directly inside our existing Jira Service Management (JSM) setup?',
       answer:
-        'Yes. Our team leads and support specialists are experienced with Jira Service Management (JSM). We can plug directly into your Atlassian Cloud or Data Center workspace. We adhere to your configured ITIL queues, incident resolution workflows, custom request types, and SLA countdown timers. If your customer support tickets link to engineering bug boards in Jira Software, our agents update cross-references seamlessly without disrupting your internal development cadence.',
-      highlights: [
-        'Direct login via role-restricted Atlassian agent accounts',
-        'Strict adherence to your JSM SLA countdown clocks & priorities',
-        'Seamless linking between customer tickets and engineering bug boards',
-      ],
+        'Yes. Our team leads and support specialists are experienced with Jira Service Management (JSM). We plug directly into your Atlassian Cloud or Data Center workspace, adhering to your configured ITIL queues, incident resolution workflows, and SLA countdown clocks. If your support tickets cross-link to development bug boards in Jira Software, our agents update cross-references seamlessly.',
     },
     {
       id: 'faq-2',
-      category: 'Custom Software',
-      question: 'Do you offer custom developed, client-specific service management options?',
+      category: 'Cost & Licensing',
+      question: 'Can you configure free or open-source ITSM solutions so we avoid per-seat SaaS fees?',
       answer:
-        'Yes. Through our technology arm under tech.njuregroup.in, we architect and deploy bespoke service management dashboards and internal triage portals for clients whose workflows cannot be satisfied by generic SaaS helpdesks. Whether you need a proprietary customer order lookup dashboard, a custom logistics resolution portal, or direct webhook integrations into your databases, we engineer and maintain custom service desks tailored exclusively to your business logic.',
-      highlights: [
-        'Bespoke web portals tailored to your proprietary data schemas',
-        'Automated webhooks and API synchronization with internal ERPs',
-        'Unified customer lookup screens reducing agent resolution time',
-      ],
+        'Yes. For cost-conscious clients wanting to avoid commercial SaaS licensing ($50–$120/agent/mo), we deploy and maintain production-ready open-source ITSM platforms (such as FreeScout or Zammad) on your cloud or ours. You pay zero recurring software license fees per agent, saving significant capital while retaining full data ownership.',
     },
     {
       id: 'faq-3',
-      category: 'Cost & Licensing',
-      question: 'Can you configure free or open-source ITSM solutions so we avoid per-seat SaaS license costs?',
+      category: 'Shift Handovers',
+      question: 'How are shift handovers and round-the-clock SLA continuity managed?',
       answer:
-        'Absolutely. Commercial enterprise helpdesks like Zendesk, Freshdesk, or Salesforce often charge between $50 and $120 per agent each month, which escalates costs rapidly as your team scales. For cost-conscious clients, we deploy, configure, and maintain production-ready free and open-source ITSM platforms (such as FreeScout, Zammad, or osTicket). You pay zero recurring software license fees per agent, saving significant capital while retaining full data ownership.',
-      highlights: [
-        'Zero per-seat software license fees (save $500–$1,200/mo on a 10-agent team)',
-        'Full data sovereignty with self-hosted or dedicated cloud database',
-        'Complete omnichannel email, chat, and ticket dispatch workflows included',
-      ],
+        'Every shift handover includes a mandatory 15-minute overlap period. Outgoing team leads and incoming supervisors review open high-priority tickets, escalations, and system release notices. A standardized handover log is recorded directly inside your ticketing portal to ensure zero context drop.',
     },
     {
       id: 'faq-4',
-      category: 'Security & Access',
-      question: 'Are you ISO or SOC certified, and what operating controls do you enforce?',
-      answer:
-        'Njure Tech is currently not ISO 27001 or SOC 2 certified. Our operating controls include appropriate access restrictions, endpoint policies, clean-desk practices, bilateral NDAs, client-controlled identity access (SSO/MFA), and supervisor-level quality controls. Client-specific security and compliance requirements are reviewed during onboarding before production access is granted.',
-      highlights: [
-        'Transparent disclosure: Currently not ISO 27001 or SOC 2 certified',
-        'Port-restricted machines, disabled external storage, and clean-screen standards',
-        'Legally binding bilateral NDAs signed prior to onboarding',
-        'Client-controlled identity (SSO/MFA) with instant revocation authority',
-      ],
-    },
-    {
-      id: 'faq-5',
-      category: 'Operations & SLAs',
-      question: 'How are shift handovers and round-the-clock SLA continuity managed?',
-      answer:
-        'To ensure seamless 24/7 service delivery, every shift handover includes a mandatory 15-minute overlap period. The outgoing team lead and incoming supervisor review open high-priority tickets, ongoing customer escalations, and system release notices. A standardized shift handover log is recorded directly inside your ticketing portal to ensure zero context is dropped.',
-      highlights: [
-        'Mandatory 15-minute supervisor overlap during every shift change',
-        'Documented handover logs tracking open escalations and critical tickets',
-        'Real-time supervisor monitoring to prevent ticket aging during shift transitions',
-      ],
-    },
-    {
-      id: 'faq-6',
-      category: 'Onboarding & Scaling',
+      category: 'Pilot & Scaling',
       question: 'How quickly can we launch, and can we scale dedicated seats up or down?',
       answer:
-        'We can deploy a calibrated 1–3 agent pilot team within 7 business days following SOP approval. The pilot period allows you to audit ticket responses and fine-tune scripts with zero long-term commitment. Once calibrated, we can scale your dedicated seat count up during seasonal surges and ramp down during quieter periods with flexible monthly agreements.',
-      highlights: [
-        'Rapid 7-day turnaround from kickoff to pilot queue go-live',
-        'Flexible surge capacity for promotional campaigns and seasonal peaks',
-        'Transparent budget-aligned pricing without rigid enterprise multi-year lock-ins',
-      ],
+        'We can deploy a calibrated 1–3 agent pilot team within 7 business days following SOP approval. The 7- to 14-day pilot allows you to audit responses and calibrate tone with zero long-term commitment. Once validated, we scale seat count up during seasonal surges and ramp down during quieter cycles with flexible monthly agreements.',
     },
-  ];
-
-  const categories = ['All', 'ITSM & Tooling', 'Custom Software', 'Cost & Licensing', 'Security & Access', 'Operations & SLAs', 'Onboarding & Scaling'];
-
-  const filteredFaqs = selectedCategory === 'All'
-    ? faqs
-    : faqs.filter(f => f.category === selectedCategory);
-
-  const toggleFaq = (id: string) => {
-    setOpenFaq(openFaq === id ? null : id);
-  };
-
-  const serviceKeys: Array<{ key: keyof typeof DETAILED_SERVICES; path: string; icon: React.ReactNode }> = [
-    { key: 'customer-support', path: '/services/customer-support', icon: <Headphones className="w-6 h-6" /> },
-    { key: 'back-office', path: '/services/back-office', icon: <Database className="w-6 h-6" /> },
-    { key: 'ecommerce-operations', path: '/services/ecommerce-support', icon: <ShoppingBag className="w-6 h-6" /> },
-    { key: 'telecalling', path: '/services/telecalling', icon: <PhoneCall className="w-6 h-6" /> },
   ];
 
   return (
@@ -135,263 +67,301 @@ export const ServicesPage: React.FC = () => {
             Service Capabilities Directory
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight mb-4">
-            BPO Services & Remote Customer Operations
+            BPO Operational Services
           </h1>
           <p className="text-base text-slate-600 leading-relaxed">
-            Dedicated customer care, back-office data operations, e-commerce order management, and outbound telecalling teams engineered around your exact budget with zero agency cut.
+            Dedicated customer care, back-office data processing, e-commerce fulfillment, and outbound telecalling teams engineered around your exact budget with zero agency cut.
           </p>
         </header>
 
-        {/* Client-Budget-Oriented Guarantee Banner */}
-        <div className="bg-white p-6 sm:p-8 rounded-xl border border-slate-200 shadow-2xs mb-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-1 rounded">
-              <span className="w-2 h-2 rounded-full bg-blue-600" />
-              <span>Client-Budget-Oriented Model · Zero Agency Cut</span>
+        {/* 1. CUSTOMER SUPPORT */}
+        <section id="customer-support" className="bg-white p-8 sm:p-10 rounded-2xl border border-slate-200 shadow-2xs mb-10" aria-labelledby="cs-heading">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between pb-6 border-b border-slate-100 gap-4 mb-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
+                <Headphones className="w-6 h-6" />
+              </div>
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 font-mono">Service Domain 01</span>
+                <h2 id="cs-heading" className="text-2xl font-bold text-slate-900">
+                  {DETAILED_SERVICES['customer-support'].title}
+                </h2>
+                <p className="text-xs text-blue-700 font-semibold mt-0.5">{DETAILED_SERVICES['customer-support'].tagline}</p>
+              </div>
             </div>
-            <h2 className="text-xl font-bold text-slate-900 mt-2">
-              Every Service is Tailored to Your Exact Operating Budget
-            </h2>
-            <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">
-              We do not impose artificial minimum seat requirements or take bloated agency cuts. We scope required shift rosters and specialist pods around your budget, paying project profits directly to our remote specialists as business partners.
-            </p>
-          </div>
-          <Link
-            to="/contact"
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white bg-slate-900 hover:bg-slate-800 rounded-md transition-colors cursor-pointer shrink-0"
-          >
-            <span>Request Budget Scoping</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-
-        {/* Detailed Service Cards with Direct Deep Links */}
-        <div className="space-y-10 mb-16">
-          {serviceKeys.map(({ key, path, icon }) => {
-            const srv = DETAILED_SERVICES[key];
-            return (
-              <article
-                key={srv.id}
-                className="bg-white p-8 sm:p-10 rounded-xl border border-slate-200 shadow-2xs space-y-8"
-              >
-                {/* Header Info */}
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-slate-100">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded bg-blue-50 text-blue-700 flex items-center justify-center shrink-0 mt-0.5">
-                      {icon}
-                    </div>
-                    <div>
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">
-                        Active Operational Service
-                      </span>
-                      <h2 className="text-2xl font-bold text-slate-900 mt-0.5">
-                        <Link to={path} className="hover:text-blue-700 transition-colors">
-                          {srv.title}
-                        </Link>
-                      </h2>
-                      <p className="text-sm font-semibold text-blue-700 mt-1">{srv.tagline}</p>
-                      <p className="text-xs text-slate-600 leading-relaxed mt-2 max-w-2xl">{srv.shortDesc}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-3">
-                    <Link
-                      to={path}
-                      className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-md transition-colors shrink-0"
-                    >
-                      <span>Explore Service Details</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
-                    <Link
-                      to="/contact"
-                      className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded-md transition-colors shrink-0"
-                    >
-                      <span>Scope Proposal</span>
-                    </Link>
-                  </div>
-                </div>
-
-                {/* Scope & Deliverables Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                  {/* Operational Scope */}
-                  <div className="lg:col-span-7 space-y-3">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                      Included Execution Scope
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      {srv.scope.map((item, i) => (
-                        <div key={i} className="flex items-start gap-2.5 text-xs text-slate-700 bg-slate-50 p-3 rounded border border-slate-100">
-                          <Check className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-                          <span>{item}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Key Deliverables & Tooling */}
-                  <div className="lg:col-span-5 space-y-6">
-                    <div>
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
-                        SLA Benchmarks & Key Outcomes
-                      </h3>
-                      <ul className="space-y-2">
-                        {srv.keyOutcomes.map((outcome, i) => (
-                          <li key={i} className="flex items-center gap-2 text-xs font-semibold text-slate-800">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                            <span>{outcome}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className="pt-4 border-t border-slate-100">
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
-                        Supported Platforms & Integrations
-                      </h3>
-                      <div className="flex flex-wrap gap-1.5">
-                        {srv.toolsSupported.map((tool) => (
-                          <span key={tool} className="px-2.5 py-1 rounded bg-slate-100 border border-slate-200 text-[11px] text-slate-700 font-medium">
-                            {tool}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-
-        {/* 4-Step Onboarding Workflow */}
-        <section className="bg-white p-8 sm:p-10 rounded-xl border border-slate-200 shadow-2xs mb-16" aria-labelledby="methodology-heading">
-          <div className="max-w-2xl mb-8">
-            <div className="text-xs font-bold uppercase tracking-wider text-blue-700 mb-1">
-              Onboarding Methodology
-            </div>
-            <h2 id="methodology-heading" className="text-2xl font-bold text-slate-900 tracking-tight">
-              Structured 4-Step Deployment Framework
-            </h2>
-            <p className="text-sm text-slate-600 mt-2">
-              We make client onboarding seamless, low-risk, and structured around your existing communication tools.
-            </p>
+            <Link
+              to="/services/customer-support"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors self-start lg:self-center shrink-0"
+            >
+              <span>Explore Customer Support &rarr;</span>
+            </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="border-t-2 border-blue-700 pt-4">
-              <span className="text-xs font-mono font-bold text-blue-700 block mb-1">Phase 01</span>
-              <h3 className="text-sm font-bold text-slate-900 mb-1">Channel & Volume Scoping</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                We analyze your average daily ticket volume, peak call hours, language requirements, and preferred helpdesk software.
-              </p>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 text-xs text-slate-700">
+            <div className="lg:col-span-7 space-y-3">
+              <h3 className="font-bold uppercase tracking-wider text-slate-400 text-[11px]">Execution Scope:</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {DETAILED_SERVICES['customer-support'].scope.map((item, i) => (
+                  <div key={i} className="flex items-start gap-2 bg-slate-50 p-2.5 rounded border border-slate-100">
+                    <Check className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-
-            <div className="border-t-2 border-blue-700 pt-4">
-              <span className="text-xs font-mono font-bold text-blue-700 block mb-1">Phase 02</span>
-              <h3 className="text-sm font-bold text-slate-900 mb-1">SOP & Script Induction</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                We document your troubleshooting flows, refund rules, and escalation trees into formalized knowledge-base modules.
-              </p>
-            </div>
-
-            <div className="border-t-2 border-blue-700 pt-4">
-              <span className="text-xs font-mono font-bold text-blue-700 block mb-1">Phase 03</span>
-              <h3 className="text-sm font-bold text-slate-900 mb-1">7-Day Pilot Execution</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Our team runs a controlled test queue with daily client QA syncs to calibrate tone, speed, and accuracy.
-              </p>
-            </div>
-
-            <div className="border-t-2 border-blue-700 pt-4">
-              <span className="text-xs font-mono font-bold text-blue-700 block mb-1">Phase 04</span>
-              <h3 className="text-sm font-bold text-slate-900 mb-1">Live Scaled Operations</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Full production with daily attendance scorecards, supervisor spot-checks, and regular stakeholder SLA reviews.
-              </p>
+            <div className="lg:col-span-5 space-y-4">
+              <div>
+                <h3 className="font-bold uppercase tracking-wider text-slate-400 text-[11px] mb-2">Target SLAs & Outcomes:</h3>
+                <ul className="space-y-1.5 font-semibold text-slate-800">
+                  {DETAILED_SERVICES['customer-support'].keyOutcomes.map((item, i) => (
+                    <li key={i} className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Enterprise FAQs Section */}
-        <section className="bg-white p-8 sm:p-10 rounded-xl border border-slate-200 shadow-2xs mb-16" aria-labelledby="faq-section-heading">
-          <div className="max-w-3xl mb-8">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-blue-50 border border-blue-100 text-xs font-semibold text-blue-700 mb-3">
-              <HelpCircle className="w-3.5 h-3.5 text-blue-600" />
-              <span>Enterprise & Operational Clarity</span>
+        {/* 2. BACK-OFFICE OPERATIONS */}
+        <section id="back-office" className="bg-white p-8 sm:p-10 rounded-2xl border border-slate-200 shadow-2xs mb-10" aria-labelledby="bo-heading">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between pb-6 border-b border-slate-100 gap-4 mb-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
+                <Database className="w-6 h-6" />
+              </div>
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 font-mono">Service Domain 02</span>
+                <h2 id="bo-heading" className="text-2xl font-bold text-slate-900">
+                  {DETAILED_SERVICES['back-office'].title}
+                </h2>
+                <p className="text-xs text-blue-700 font-semibold mt-0.5">{DETAILED_SERVICES['back-office'].tagline}</p>
+              </div>
             </div>
-            <h2 id="faq-section-heading" className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-2">
-              Enterprise FAQs: Workflows, Tooling & Governance
+            <Link
+              to="/services/back-office"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors self-start lg:self-center shrink-0"
+            >
+              <span>Explore Back-Office &rarr;</span>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 text-xs text-slate-700">
+            <div className="lg:col-span-7 space-y-3">
+              <h3 className="font-bold uppercase tracking-wider text-slate-400 text-[11px]">Execution Scope:</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {DETAILED_SERVICES['back-office'].scope.map((item, i) => (
+                  <div key={i} className="flex items-start gap-2 bg-slate-50 p-2.5 rounded border border-slate-100">
+                    <Check className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="lg:col-span-5 space-y-4">
+              <div>
+                <h3 className="font-bold uppercase tracking-wider text-slate-400 text-[11px] mb-2">Target SLAs & Outcomes:</h3>
+                <ul className="space-y-1.5 font-semibold text-slate-800">
+                  {DETAILED_SERVICES['back-office'].keyOutcomes.map((item, i) => (
+                    <li key={i} className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 3. E-COMMERCE OPERATIONS */}
+        <section id="ecommerce" className="bg-white p-8 sm:p-10 rounded-2xl border border-slate-200 shadow-2xs mb-10" aria-labelledby="ecom-heading">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between pb-6 border-b border-slate-100 gap-4 mb-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
+                <ShoppingBag className="w-6 h-6" />
+              </div>
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 font-mono">Service Domain 03</span>
+                <h2 id="ecom-heading" className="text-2xl font-bold text-slate-900">
+                  {DETAILED_SERVICES['ecommerce-operations'].title}
+                </h2>
+                <p className="text-xs text-blue-700 font-semibold mt-0.5">{DETAILED_SERVICES['ecommerce-operations'].tagline}</p>
+              </div>
+            </div>
+            <Link
+              to="/services/ecommerce-support"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors self-start lg:self-center shrink-0"
+            >
+              <span>Explore E-Commerce &rarr;</span>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 text-xs text-slate-700">
+            <div className="lg:col-span-7 space-y-3">
+              <h3 className="font-bold uppercase tracking-wider text-slate-400 text-[11px]">Execution Scope:</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {DETAILED_SERVICES['ecommerce-operations'].scope.map((item, i) => (
+                  <div key={i} className="flex items-start gap-2 bg-slate-50 p-2.5 rounded border border-slate-100">
+                    <Check className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="lg:col-span-5 space-y-4">
+              <div>
+                <h3 className="font-bold uppercase tracking-wider text-slate-400 text-[11px] mb-2">Target SLAs & Outcomes:</h3>
+                <ul className="space-y-1.5 font-semibold text-slate-800">
+                  {DETAILED_SERVICES['ecommerce-operations'].keyOutcomes.map((item, i) => (
+                    <li key={i} className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 4. TELECALLING */}
+        <section id="telecalling" className="bg-white p-8 sm:p-10 rounded-2xl border border-slate-200 shadow-2xs mb-12" aria-labelledby="tc-heading">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between pb-6 border-b border-slate-100 gap-4 mb-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
+                <PhoneCall className="w-6 h-6" />
+              </div>
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 font-mono">Service Domain 04</span>
+                <h2 id="tc-heading" className="text-2xl font-bold text-slate-900">
+                  {DETAILED_SERVICES['telecalling'].title}
+                </h2>
+                <p className="text-xs text-blue-700 font-semibold mt-0.5">{DETAILED_SERVICES['telecalling'].tagline}</p>
+              </div>
+            </div>
+            <Link
+              to="/services/telecalling"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors self-start lg:self-center shrink-0"
+            >
+              <span>Explore Telecalling &rarr;</span>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 text-xs text-slate-700">
+            <div className="lg:col-span-7 space-y-3">
+              <h3 className="font-bold uppercase tracking-wider text-slate-400 text-[11px]">Execution Scope:</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {DETAILED_SERVICES['telecalling'].scope.map((item, i) => (
+                  <div key={i} className="flex items-start gap-2 bg-slate-50 p-2.5 rounded border border-slate-100">
+                    <Check className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="lg:col-span-5 space-y-4">
+              <div>
+                <h3 className="font-bold uppercase tracking-wider text-slate-400 text-[11px] mb-2">Target SLAs & Outcomes:</h3>
+                <ul className="space-y-1.5 font-semibold text-slate-800">
+                  {DETAILED_SERVICES['telecalling'].keyOutcomes.map((item, i) => (
+                    <li key={i} className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 5. TECHNOLOGY & TOOLS SUPPORTED */}
+        <section id="technology-tools" className="bg-slate-900 text-white p-8 sm:p-10 rounded-2xl border border-slate-800 mb-12" aria-labelledby="tools-heading">
+          <div className="max-w-3xl mb-8">
+            <span className="text-xs font-mono uppercase tracking-wider text-cyan-400 font-bold block mb-1">
+              Stack Agnostic
+            </span>
+            <h2 id="tools-heading" className="text-2xl font-bold tracking-tight text-white mb-2">
+              Technology & Supported Tools Architecture
             </h2>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              Clear answers regarding our integration capabilities with Jira Service Management (JSM), bespoke client portals, free ITSM deployments, security, and shift management.
+            <p className="text-xs text-slate-300 leading-relaxed">
+              We connect directly into your existing software stack using client-controlled credentials, or deploy free and open-source ITSMs to eliminate SaaS licensing overhead entirely.
             </p>
           </div>
 
-          {/* Category Filter Pills */}
-          <div className="flex flex-wrap gap-2 mb-8 pb-4 border-b border-slate-100">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
-                  selectedCategory === cat
-                    ? 'bg-blue-700 text-white font-semibold'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
+            <div className="p-5 rounded-xl bg-slate-800/80 border border-slate-700">
+              <div className="flex items-center gap-2 font-bold text-white mb-2">
+                <Wrench className="w-4 h-4 text-cyan-400" />
+                <span>Enterprise Helpdesks</span>
+              </div>
+              <p className="text-slate-300 leading-relaxed mb-4">
+                Native agent execution in Zendesk, Freshdesk, Jira Service Management (JSM), and Zoho Desk under your identity credentials.
+              </p>
+              <div className="flex flex-wrap gap-1">
+                {['Zendesk', 'Freshdesk', 'Jira JSM', 'Zoho Desk'].map((t) => (
+                  <span key={t} className="px-2 py-0.5 rounded bg-slate-700 text-slate-300 font-mono text-[10px]">{t}</span>
+                ))}
+              </div>
+            </div>
 
-          {/* Accordion FAQ Items */}
-          <div className="space-y-4">
-            {filteredFaqs.map((faq) => {
+            <div className="p-5 rounded-xl bg-slate-800/80 border border-slate-700">
+              <div className="flex items-center gap-2 font-bold text-white mb-2">
+                <Server className="w-4 h-4 text-cyan-400" />
+                <span>Free & Open-Source ITSM</span>
+              </div>
+              <p className="text-slate-300 leading-relaxed mb-4">
+                We deploy and configure FreeScout or Zammad on dedicated cloud instances, saving $50–$120/mo per agent seat with full ticketing power.
+              </p>
+              <div className="flex flex-wrap gap-1">
+                {['FreeScout', 'Zammad', 'Zero Seat Fees', 'Full Sovereignty'].map((t) => (
+                  <span key={t} className="px-2 py-0.5 rounded bg-slate-700 text-cyan-300 font-mono text-[10px]">{t}</span>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-5 rounded-xl bg-slate-800/80 border border-slate-700">
+              <div className="flex items-center gap-2 font-bold text-white mb-2">
+                <Code2 className="w-4 h-4 text-cyan-400" />
+                <span>E-Com & CRM Stacks</span>
+              </div>
+              <p className="text-slate-300 leading-relaxed mb-4">
+                Seamless operation in Shopify, Shiprocket, ClickPost, HubSpot, LeadSquared, Exotel cloud PBX, and Google Workspace.
+              </p>
+              <div className="flex flex-wrap gap-1">
+                {['Shopify', 'Shiprocket', 'HubSpot', 'ClickPost'].map((t) => (
+                  <span key={t} className="px-2 py-0.5 rounded bg-slate-700 text-slate-300 font-mono text-[10px]">{t}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQs */}
+        <section className="bg-white p-8 sm:p-10 rounded-2xl border border-slate-200 shadow-2xs mb-12" aria-labelledby="service-faq-heading">
+          <div className="max-w-2xl mb-6">
+            <h2 id="service-faq-heading" className="text-xl font-bold text-slate-900">Frequently Asked Operational Questions</h2>
+          </div>
+          <div className="space-y-3">
+            {faqs.map((faq) => {
               const isOpen = openFaq === faq.id;
               return (
-                <div
-                  key={faq.id}
-                  className={`rounded-lg border transition-all ${
-                    isOpen ? 'border-blue-300 bg-slate-50/50 shadow-xs' : 'border-slate-200 hover:border-slate-300 bg-white'
-                  }`}
-                >
+                <div key={faq.id} className="border border-slate-200 rounded-lg overflow-hidden">
                   <button
-                    onClick={() => toggleFaq(faq.id)}
-                    className="w-full text-left p-5 sm:p-6 flex items-start justify-between gap-4 cursor-pointer focus:outline-none"
+                    type="button"
+                    onClick={() => setOpenFaq(isOpen ? null : faq.id)}
+                    className="w-full text-left p-4 bg-slate-50/50 hover:bg-slate-100 flex items-center justify-between gap-4 cursor-pointer text-xs font-semibold text-slate-900"
                     aria-expanded={isOpen}
                   >
-                    <div className="space-y-1">
-                      <span className="text-[11px] font-semibold uppercase tracking-wider text-blue-700 block font-mono">
-                        {faq.category}
-                      </span>
-                      <h3 className="text-base sm:text-lg font-bold text-slate-900">
-                        {faq.question}
-                      </h3>
-                    </div>
-                    <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 mt-1 text-slate-600">
-                      {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                    </div>
+                    <span>{faq.question}</span>
+                    <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                   </button>
-
                   {isOpen && (
-                    <div className="px-5 sm:px-6 pb-6 pt-1 text-xs text-slate-600 leading-relaxed space-y-4 border-t border-slate-100">
-                      <p className="text-sm text-slate-700 leading-relaxed">
-                        {faq.answer}
-                      </p>
-
-                      <div className="bg-white p-4 rounded border border-slate-200 space-y-2">
-                        <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                          Key Operational Takeaway:
-                        </div>
-                        <ul className="space-y-1.5">
-                          {faq.highlights.map((h, i) => (
-                            <li key={i} className="flex items-start gap-2 text-xs text-slate-800">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
-                              <span>{h}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                    <div className="p-4 bg-white text-xs text-slate-600 leading-relaxed border-t border-slate-100">
+                      <p>{faq.answer}</p>
                     </div>
                   )}
                 </div>
@@ -400,20 +370,20 @@ export const ServicesPage: React.FC = () => {
           </div>
         </section>
 
-        {/* CTA Banner */}
-        <div className="bg-slate-900 text-white p-8 sm:p-10 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        {/* Closing CTA */}
+        <div className="bg-slate-900 text-white rounded-2xl p-8 sm:p-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div>
-            <h3 className="text-xl font-bold mb-2">Need a custom pod structure?</h3>
-            <p className="text-xs text-slate-400 max-w-xl">
-              From a 2-agent dedicated chat pod to an omnichannel voice and back-office desk, we tailor our rosters to your operational schedule.
+            <h3 className="text-lg font-bold">Have an exact monthly operational budget?</h3>
+            <p className="text-xs text-slate-400">
+              We tailor required hours, shift rosters, and specialist pods around what you can invest.
             </p>
           </div>
           <Link
             to="/contact"
-            className="inline-flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-900 bg-white hover:bg-slate-100 rounded-md transition-colors cursor-pointer shrink-0"
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-900 bg-white hover:bg-slate-100 rounded-md transition-colors shrink-0"
           >
-            <span>Request Proposal</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>Request Budget Scoping</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       </div>
