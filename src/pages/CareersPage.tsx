@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { 
   Briefcase, 
   MapPin, 
@@ -7,14 +7,11 @@ import {
   CheckCircle, 
   Users, 
   HeartHandshake, 
-  X, 
-  FileText, 
-  Upload, 
-  Mail,
-  Loader2,
-  AlertCircle,
-  Copy,
-  Check
+  Mail, 
+  Copy, 
+  Check, 
+  Paperclip,
+  ExternalLink
 } from 'lucide-react';
 import { COMPANY_INFO, CAREER_LISTINGS, CareerItem } from '../data/companyData';
 import { Breadcrumb } from '../components/Breadcrumb';
@@ -30,64 +27,28 @@ export const CareersPage: React.FC = () => {
   const [applicantRole, setApplicantRole] = useState(CAREER_LISTINGS[0].title);
   const [applicantExperience, setApplicantExperience] = useState('0 – 2 Years (Freshers Welcome)');
   const [applicantPortfolio, setApplicantPortfolio] = useState('');
-  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [applicantNotes, setApplicantNotes] = useState('');
   const [consent, setConsent] = useState(false);
   const [honeypot, setHoneypot] = useState('');
 
   const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState(false);
-
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [copiedBody, setCopiedBody] = useState(false);
 
   const [submittedApplication, setSubmittedApplication] = useState<{
     id: string;
     name: string;
     role: string;
     experience: string;
-    fileName: string;
   } | null>(null);
 
   const handleSelectRoleToApply = (role: CareerItem) => {
     setSelectedRole(role);
     setApplicantRole(role.title);
-    // Smooth scroll to application form
     const appSection = document.getElementById('application-section');
     if (appSection) {
       appSection.scrollIntoView({ behavior: 'smooth' });
     }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate size (10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      setClientErrors((prev) => ({ ...prev, resume: 'File size must be under 10MB.' }));
-      setResumeFile(null);
-      return;
-    }
-
-    // Validate type
-    const validTypes = [
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    ];
-    if (!validTypes.includes(file.type) && !file.name.match(/\.(pdf|doc|docx)$/i)) {
-      setClientErrors((prev) => ({ ...prev, resume: 'Only PDF, DOC, or DOCX resume documents are accepted.' }));
-      setResumeFile(null);
-      return;
-    }
-
-    setResumeFile(file);
-    setClientErrors((prev) => {
-      const next = { ...prev };
-      delete next.resume;
-      return next;
-    });
   };
 
   const validate = (): boolean => {
@@ -106,10 +67,6 @@ export const CareersPage: React.FC = () => {
       errors.phone = 'Please provide a valid contact phone number with country code.';
     }
 
-    if (!resumeFile) {
-      errors.resume = 'Please attach your resume / CV document (PDF, DOC, DOCX).';
-    }
-
     if (!consent) {
       errors.consent = 'You must acknowledge the profit-sharing business partner model.';
     }
@@ -118,53 +75,69 @@ export const CareersPage: React.FC = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmitApplication = async (e: React.FormEvent) => {
+  const generateUniqueRefId = () => {
+    const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return `NJ-APP-2026-${code}`;
+  };
+
+  const getApplicationEmailText = (refId: string) => {
+    return `Hello Njure Tech Talent Team,
+
+I would like to apply for the position of "${applicantRole}". Here are my candidate details:
+
+========================================
+APPLICATION REFERENCE ID: ${refId}
+TIMESTAMP:                ${new Date().toLocaleString()}
+========================================
+
+CANDIDATE DETAILS:
+- Full Name:        ${applicantName || 'Not provided'}
+- Email Address:    ${applicantEmail || 'Not provided'}
+- Contact Phone:    ${applicantPhone || 'Not provided'}
+- Current Location: ${applicantLocation || 'Not provided'}
+- Target Role:      ${applicantRole}
+- Experience Level: ${applicantExperience}
+- Portfolio / Link: ${applicantPortfolio || 'Not provided'}
+
+CANDIDATE NOTES:
+${applicantNotes.trim() || 'Please review my resume document attached to this email.'}
+
+========================================
+NOTE: My resume / CV is attached to this email.
+========================================
+Thank you,
+${applicantName || 'Candidate'}
+`;
+  };
+
+  const createMailtoUrl = (refId: string) => {
+    const recipient = 'info@njuregroup.in';
+    const cc = 'neerej.suresan.s@gmail.com';
+    const subject = encodeURIComponent(`[Ref: ${refId}] Job Application: ${applicantName || 'Candidate'} - ${applicantRole}`);
+    const body = encodeURIComponent(getApplicationEmailText(refId));
+    return `mailto:${recipient}?cc=${cc}&subject=${subject}&body=${body}`;
+  };
+
+  const handleSubmitApplication = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
-    setIsSubmitting(true);
-    setSubmitError(null);
+    const refId = generateUniqueRefId();
+    const mailtoUrl = createMailtoUrl(refId);
 
-    try {
-      const payload = new FormData();
-      payload.append('name', applicantName.trim());
-      payload.append('email', applicantEmail.trim());
-      payload.append('phone', applicantPhone.trim());
-      payload.append('location', applicantLocation.trim());
-      payload.append('role', applicantRole);
-      payload.append('experience', applicantExperience);
-      payload.append('portfolio', applicantPortfolio.trim());
-      payload.append('consent', String(consent));
-      payload.append('honeypot', honeypot);
-      if (resumeFile) {
-        payload.append('resume', resumeFile);
-      }
+    // Launch email client
+    window.location.href = mailtoUrl;
 
-      const res = await fetch('/api/applications', {
-        method: 'POST',
-        body: payload,
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || data.message || 'Failed to submit candidate application.');
-      }
-
-      setSubmittedApplication({
-        id: data.applicationId,
-        name: applicantName.trim(),
-        role: applicantRole,
-        experience: applicantExperience,
-        fileName: resumeFile?.name || 'Resume Document',
-      });
-    } catch (err: any) {
-      console.error('Job application submission error:', err);
-      setSubmitError(
-        err.message || 'Unable to upload application. You can email your CV directly to info@njuregroup.in.'
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
+    setSubmittedApplication({
+      id: refId,
+      name: applicantName.trim(),
+      role: applicantRole,
+      experience: applicantExperience,
+    });
   };
 
   const handleCopyId = (id: string) => {
@@ -173,17 +146,22 @@ export const CareersPage: React.FC = () => {
     setTimeout(() => setCopiedId(false), 2000);
   };
 
+  const handleCopyEmailText = (refId: string) => {
+    const text = getApplicationEmailText(refId);
+    navigator.clipboard.writeText(text);
+    setCopiedBody(true);
+    setTimeout(() => setCopiedBody(false), 2000);
+  };
+
   const handleResetForm = () => {
     setSubmittedApplication(null);
-    setSubmitError(null);
     setClientErrors({});
     setApplicantName('');
     setApplicantEmail('');
     setApplicantPhone('');
     setApplicantPortfolio('');
-    setResumeFile(null);
+    setApplicantNotes('');
     setConsent(false);
-    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   return (
@@ -311,7 +289,7 @@ export const CareersPage: React.FC = () => {
           </div>
         </section>
 
-        {/* 3. APPLICATION PORTAL */}
+        {/* 3. APPLICATION PORTAL (MAIL-BASED DIRECT SUBMISSION) */}
         <section id="application-section" className="scroll-mt-24" aria-labelledby="application-heading">
           <div className="bg-white rounded-2xl border border-slate-200 p-8 sm:p-10 shadow-2xs">
             <div className="max-w-3xl mb-8">
@@ -319,27 +297,27 @@ export const CareersPage: React.FC = () => {
                 Candidate Application
               </div>
               <h2 id="application-heading" className="text-2xl font-bold text-slate-900 tracking-tight mb-2">
-                3. Online Candidate Application
+                3. Candidate Application via Email
               </h2>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Submit your CV directly to our operations team. We evaluate each application against our partner model standards and reply within 48 business hours.
+                Complete your details below and click Send via Email. Your email application will open prefilled with an automatic candidate Reference ID. Simply attach your CV and hit send.
               </p>
             </div>
 
             {submittedApplication ? (
               /* Success Receipt State */
               <div className="py-6 text-center" role="status" aria-live="polite">
-                <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle className="w-8 h-8" />
+                <div className="w-14 h-14 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center mx-auto mb-4">
+                  <Mail className="w-7 h-7" />
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900 mb-2">Application Successfully Submitted</h3>
+                <h3 className="text-2xl font-bold text-slate-900 mb-2">Application Email Generated</h3>
                 <p className="text-xs text-slate-600 max-w-md mx-auto mb-6 leading-relaxed">
-                  Thank you, <strong className="text-slate-900">{submittedApplication.name}</strong>. Your candidate application for <strong className="text-slate-900">{submittedApplication.role}</strong> has been saved directly to our recruitment registry.
+                  Thank you, <strong className="text-slate-900">{submittedApplication.name}</strong>. Your candidate application for <strong className="text-slate-900">{submittedApplication.role}</strong> has been structured with an automatic tracking Reference ID.
                 </p>
 
                 <div className="bg-slate-50 border border-slate-200 rounded-lg p-5 max-w-md mx-auto mb-6 text-xs text-left font-mono space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-500">Application ID:</span>
+                    <span className="text-slate-500">Application Reference ID:</span>
                     <div className="flex items-center gap-1.5">
                       <span className="font-bold text-blue-700">{submittedApplication.id}</span>
                       <button
@@ -348,7 +326,7 @@ export const CareersPage: React.FC = () => {
                         className="p-1 text-slate-400 hover:text-slate-700 rounded cursor-pointer"
                         title="Copy Application ID"
                       >
-                        {copiedId ? <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                        {copiedId ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                       </button>
                     </div>
                   </div>
@@ -357,40 +335,47 @@ export const CareersPage: React.FC = () => {
                     <span className="text-slate-800 font-semibold">{submittedApplication.role}</span>
                   </div>
                   <div className="flex justify-between border-t border-slate-200 pt-1.5">
-                    <span className="text-slate-500">Resume Attached:</span>
-                    <span className="text-slate-800">{submittedApplication.fileName}</span>
+                    <span className="text-slate-500">Recipient Email:</span>
+                    <span className="text-blue-700 font-bold">info@njuregroup.in</span>
                   </div>
                   <div className="flex justify-between border-t border-slate-200 pt-1.5">
-                    <span className="text-slate-500">Status:</span>
-                    <span className="text-emerald-700 font-semibold">Under Operational Review</span>
+                    <span className="text-slate-500">Talent Lead CC:</span>
+                    <span className="text-slate-800">neerej.suresan.s@gmail.com</span>
                   </div>
                   <div className="flex justify-between border-t border-slate-200 pt-1.5">
-                    <span className="text-slate-500">Review SLA:</span>
-                    <span className="text-slate-800">48 Business Hours</span>
+                    <span className="text-slate-500">Next Step:</span>
+                    <span className="text-amber-800 font-sans font-semibold">Attach your CV/Resume file in your email app</span>
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={handleResetForm}
-                  className="px-6 py-2.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded transition-colors cursor-pointer"
-                >
-                  Submit Another Application
-                </button>
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                  <a
+                    href={createMailtoUrl(submittedApplication.id)}
+                    className="px-5 py-2.5 text-xs font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded transition-colors inline-flex items-center gap-2"
+                  >
+                    <Mail className="w-4 h-4" />
+                    <span>Re-open in Mail App</span>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyEmailText(submittedApplication.id)}
+                    className="px-4 py-2.5 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 rounded transition-colors cursor-pointer inline-flex items-center gap-1.5"
+                  >
+                    {copiedBody ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedBody ? 'Copied Email Body' : 'Copy Email Body'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleResetForm}
+                    className="px-5 py-2.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded transition-colors cursor-pointer"
+                  >
+                    Submit Another Application
+                  </button>
+                </div>
               </div>
             ) : (
-              /* Live Real Application Form */
+              /* Live Candidate Form */
               <form onSubmit={handleSubmitApplication} noValidate className="space-y-4 max-w-3xl">
-                {submitError && (
-                  <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-xs text-red-800 flex items-start gap-3">
-                    <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-                    <div>
-                      <strong className="block font-bold mb-0.5">Upload Error</strong>
-                      <span>{submitError}</span>
-                    </div>
-                  </div>
-                )}
-
                 {/* Honeypot spam trap */}
                 <div className="hidden" aria-hidden="true" style={{ display: 'none' }}>
                   <input
@@ -526,47 +511,26 @@ export const CareersPage: React.FC = () => {
                   />
                 </div>
 
-                {/* File Upload for Resume */}
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1">
-                    Upload Resume / CV (PDF, DOC, DOCX up to 10MB) <span className="text-red-500">*</span>
+                    Candidate Introduction or Notes (Optional)
                   </label>
-                  <div className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-lg transition-colors ${
-                    clientErrors.resume ? 'border-red-400 bg-red-50/20' : 'border-slate-300 hover:border-blue-400 bg-slate-50'
-                  }`}>
-                    <div className="space-y-1 text-center">
-                      <Upload className="mx-auto h-8 w-8 text-slate-400" />
-                      <div className="flex text-xs text-slate-600 justify-center">
-                        <label
-                          htmlFor="resume-upload"
-                          className="relative cursor-pointer bg-transparent rounded-md font-semibold text-blue-700 hover:text-blue-800 focus-within:outline-none"
-                        >
-                          <span>{resumeFile ? 'Change selected resume' : 'Upload resume document'}</span>
-                          <input
-                            id="resume-upload"
-                            name="resume-upload"
-                            type="file"
-                            ref={fileInputRef}
-                            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                            onChange={handleFileChange}
-                            className="sr-only"
-                          />
-                        </label>
-                      </div>
-                      <p className="text-[11px] text-slate-500">
-                        {resumeFile ? (
-                          <span className="font-semibold text-emerald-700 font-mono">
-                            Selected: {resumeFile.name} ({(resumeFile.size / 1024).toFixed(1)} KB)
-                          </span>
-                        ) : (
-                          'PDF, DOC, or DOCX up to 10MB'
-                        )}
-                      </p>
-                    </div>
+                  <textarea
+                    rows={3}
+                    value={applicantNotes}
+                    onChange={(e) => setApplicantNotes(e.target.value)}
+                    placeholder="Briefly introduce your skills, languages known (English, Malayalam, Hindi, Tamil), and operational experience..."
+                    className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded text-xs text-slate-900 focus:outline-none focus:border-blue-600"
+                  />
+                </div>
+
+                {/* Reminder banner regarding resume attachment */}
+                <div className="p-4 rounded-lg bg-blue-50 border border-blue-200 text-xs text-blue-900 flex items-start gap-3">
+                  <Paperclip className="w-4 h-4 text-blue-700 shrink-0 mt-0.5" />
+                  <div>
+                    <strong className="block font-semibold mb-0.5">Resume / CV Attachment:</strong>
+                    <span>Clicking the button below opens your default email client with your candidate details. Please attach your resume document (PDF, DOC, DOCX) directly to that email.</span>
                   </div>
-                  {clientErrors.resume && (
-                    <span className="text-[11px] text-red-600 mt-1 block">{clientErrors.resume}</span>
-                  )}
                 </div>
 
                 {/* Consent Checkbox */}
@@ -590,26 +554,15 @@ export const CareersPage: React.FC = () => {
                 <div className="pt-2">
                   <button
                     type="submit"
-                    disabled={isSubmitting}
-                    className={`w-full sm:w-auto px-8 py-3.5 text-xs font-bold uppercase tracking-wider text-white bg-blue-700 hover:bg-blue-800 rounded transition-colors shadow-xs cursor-pointer flex items-center justify-center gap-2 ${
-                      isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
-                    }`}
+                    className="w-full sm:w-auto px-8 py-3.5 text-xs font-bold uppercase tracking-wider text-white bg-blue-700 hover:bg-blue-800 rounded transition-colors shadow-xs cursor-pointer flex items-center justify-center gap-2"
                   >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Uploading Resume & Registering Application...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Submit Candidate Application</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
+                    <Mail className="w-4 h-4" />
+                    <span>Send Application via Email</span>
+                    <ArrowRight className="w-4 h-4" />
                   </button>
 
                   <p className="text-[11px] text-slate-500 mt-3">
-                    Resumes are safely archived in our secure operations storage and reviewed by our talent leads.
+                    Submissions are addressed directly to our talent leads at <strong className="text-slate-700">info@njuregroup.in</strong> with an automatic tracking Reference ID.
                   </p>
                 </div>
               </form>

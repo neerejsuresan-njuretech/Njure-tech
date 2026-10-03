@@ -567,10 +567,10 @@ export const ROUTE_REGISTRY: Record<string, RouteSEOData> = {
         ],
       },
       {
-        heading: '3. Application Process & Online Portal',
-        subheading: 'Fast candidate evaluation and review within 48 hours',
+        heading: '3. Candidate Application via Email',
+        subheading: 'Direct email submission with candidate Reference ID',
         paragraphs: [
-          'Submit your application directly through our online career portal with your resume (PDF, DOC, DOCX). Applications are reviewed by our operations leadership.',
+          'Submit your application directly through our mail application form. An automatic candidate tracking Reference ID is generated and opens your mail client addressed to info@njuregroup.in. Simply attach your CV/Resume file.',
           'Central talent contact: info@njuregroup.in | Partner model agreement acknowledged on application.',
         ],
       },
@@ -591,11 +591,11 @@ export const ROUTE_REGISTRY: Record<string, RouteSEOData> = {
     schemaType: 'ContactPage',
     sections: [
       {
-        heading: 'Real Contact Form & Inquiry Desk',
-        subheading: 'Submissions recorded into operations ledger and dispatched to leadership',
+        heading: 'Direct Email Inquiry Desk',
+        subheading: 'Structured inquiries with automatic tracking Reference IDs',
         paragraphs: [
-          'Submit your project parameters through our online contact portal. Your inquiry is recorded directly into our operational ledger and reviewed by an operations lead within 2–4 hours on business days.',
-          'Every submission receives an official tracking reference ID (e.g., NJ-INQ-2026-XXXX) for transparent follow-up.',
+          'Submit your project parameters through our inquiry form. An automatic tracking reference ID (e.g., NJ-INQ-2026-XXXX) is generated in the subject line addressed to info@njuregroup.in.',
+          'Our operations leadership reviews your parameters and responds within 2–4 hours on business days with a tailored pod staffing plan.',
         ],
       },
       {

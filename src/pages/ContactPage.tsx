@@ -7,10 +7,8 @@ import {
   Globe, 
   Laptop, 
   CheckCircle, 
-  AlertCircle,
-  Loader2,
   Copy,
-  ExternalLink
+  Check
 } from 'lucide-react';
 import { COMPANY_INFO } from '../data/companyData';
 import { Breadcrumb } from '../components/Breadcrumb';
@@ -41,9 +39,8 @@ export const ContactPage: React.FC = () => {
   });
 
   const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState(false);
+  const [copiedText, setCopiedText] = useState(false);
 
   const [submittedInquiry, setSubmittedInquiry] = useState<{
     id: string;
@@ -93,10 +90,17 @@ export const ContactPage: React.FC = () => {
     }
   };
 
-  const createMailtoUrl = (refId: string) => {
-    const recipient = 'info@njuregroup.in';
-    const subject = encodeURIComponent(`[Ref: ${refId}] BPO Operations Inquiry - ${formData.name || 'Client'} (${formData.company || 'Direct'})`);
-    const body = encodeURIComponent(`Hello Njure Tech Team,
+  const generateUniqueRefId = () => {
+    const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return `NJ-INQ-2026-${code}`;
+  };
+
+  const getEmailBodyText = (refId: string) => {
+    return `Hello Njure Tech Team,
 
 I would like to request an operations consultation with the following details:
 
@@ -120,49 +124,35 @@ PROJECT / SCOPE DESCRIPTION:
 ${formData.message || 'Not provided'}
 
 ========================================
-`);
+`;
+  };
+
+  const createMailtoUrl = (refId: string) => {
+    const recipient = 'info@njuregroup.in';
+    const subject = encodeURIComponent(`[Ref: ${refId}] BPO Operations Inquiry - ${formData.name || 'Client'} (${formData.company || 'Direct'})`);
+    const body = encodeURIComponent(getEmailBodyText(refId));
     return `mailto:${recipient}?subject=${subject}&body=${body}`;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
-    setIsSubmitting(true);
-    setSubmitError(null);
+    const refId = generateUniqueRefId();
+    const mailtoUrl = createMailtoUrl(refId);
 
-    try {
-      const response = await fetch('/api/inquiries', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+    // Launch user's mail client directly
+    window.location.href = mailtoUrl;
 
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || result.message || 'Server failed to process your inquiry.');
-      }
-
-      setSubmittedInquiry({
-        id: result.inquiryId,
-        name: formData.name.trim(),
-        company: formData.company.trim() || 'Direct Client Account',
-        service: formData.service,
-        budget: formData.budget,
-        message: result.message || 'Inquiry registered in operational ledger.',
-      });
-    } catch (err: any) {
-      console.error('Inquiry submission error:', err);
-      setSubmitError(
-        err.message || 'Unable to connect to inquiry server. Please check your network or email info@njuregroup.in directly.'
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
+    // Display confirmation receipt state
+    setSubmittedInquiry({
+      id: refId,
+      name: formData.name.trim(),
+      company: formData.company.trim() || 'Direct Client Account',
+      service: formData.service,
+      budget: formData.budget,
+      message: formData.message.trim(),
+    });
   };
 
   const handleCopyId = (id: string) => {
@@ -171,9 +161,15 @@ ${formData.message || 'Not provided'}
     setTimeout(() => setCopiedId(false), 2000);
   };
 
+  const handleCopyEmailText = (refId: string) => {
+    const text = getEmailBodyText(refId);
+    navigator.clipboard.writeText(text);
+    setCopiedText(true);
+    setTimeout(() => setCopiedText(false), 2000);
+  };
+
   const handleReset = () => {
     setSubmittedInquiry(null);
-    setSubmitError(null);
     setClientErrors({});
     setFormData({
       name: '',
@@ -274,7 +270,7 @@ ${formData.message || 'Not provided'}
               </div>
             </div>
 
-            {/* SLA Transparency Notice */}
+            {/* Direct Consultation Notice */}
             <div className="bg-slate-900 text-white p-6 rounded-lg border border-slate-800 text-xs space-y-3">
               <span className="text-[11px] font-mono uppercase tracking-wider text-cyan-400 font-bold block">
                 Direct Operations Review
@@ -286,18 +282,18 @@ ${formData.message || 'Not provided'}
             </div>
           </div>
 
-          {/* Right Column: Real Contact Form */}
+          {/* Right Column: Mail-Based Contact Form */}
           <div className="lg:col-span-7">
             <div className="bg-white p-6 sm:p-10 rounded-lg border border-slate-200 shadow-2xs">
               {submittedInquiry ? (
-                /* Confirmed Inquiry State (Cloud SQL Record Confirmed) */
+                /* Confirmed Mail Dispatch State */
                 <div className="py-6 text-center" role="status" aria-live="polite">
-                  <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle className="w-8 h-8" />
+                  <div className="w-14 h-14 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center mx-auto mb-4">
+                    <Mail className="w-7 h-7" />
                   </div>
-                  <h2 className="text-2xl font-bold text-slate-900 mb-2">Proposal Request Registered</h2>
+                  <h2 className="text-2xl font-bold text-slate-900 mb-2">Inquiry Email Generated</h2>
                   <p className="text-xs text-slate-600 max-w-md mx-auto mb-6 leading-relaxed">
-                    Thank you, <strong className="text-slate-900">{submittedInquiry.name}</strong>. Your inquiry for <strong className="text-slate-900">{submittedInquiry.company}</strong> has been saved directly to our operations database and dispatched to our leadership team.
+                    Thank you, <strong className="text-slate-900">{submittedInquiry.name}</strong>. Your inquiry for <strong className="text-slate-900">{submittedInquiry.company}</strong> has been structured with an automatic tracking Reference ID.
                   </p>
 
                   <div className="bg-slate-50 border border-slate-200 rounded-lg p-5 max-w-md mx-auto mb-6 text-xs text-left font-mono space-y-2.5">
@@ -311,7 +307,7 @@ ${formData.message || 'Not provided'}
                           className="p-1 text-slate-400 hover:text-slate-700 rounded cursor-pointer"
                           title="Copy Tracking ID"
                         >
-                          {copiedId ? <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                          {copiedId ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                         </button>
                       </div>
                     </div>
@@ -324,8 +320,8 @@ ${formData.message || 'Not provided'}
                       <span className="text-slate-800">{submittedInquiry.budget}</span>
                     </div>
                     <div className="flex justify-between border-t border-slate-200 pt-2">
-                      <span className="text-slate-500">Status:</span>
-                      <span className="text-emerald-700 font-semibold">Under Operational Review</span>
+                      <span className="text-slate-500">Recipient Email:</span>
+                      <span className="text-blue-700 font-bold">info@njuregroup.in</span>
                     </div>
                     <div className="flex justify-between border-t border-slate-200 pt-2">
                       <span className="text-slate-500">Response SLA:</span>
@@ -339,8 +335,16 @@ ${formData.message || 'Not provided'}
                       className="px-5 py-2.5 text-xs font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded transition-colors inline-flex items-center gap-2"
                     >
                       <Mail className="w-4 h-4" />
-                      <span>Backup via Email Client</span>
+                      <span>Re-open in Mail App</span>
                     </a>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyEmailText(submittedInquiry.id)}
+                      className="px-4 py-2.5 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 rounded transition-colors cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      {copiedText ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedText ? 'Copied Email Body' : 'Copy Email Body'}</span>
+                    </button>
                     <button
                       type="button"
                       onClick={handleReset}
@@ -351,32 +355,14 @@ ${formData.message || 'Not provided'}
                   </div>
                 </div>
               ) : (
-                /* Live Asynchronous Inquiry Submission Form */
+                /* Live Inquiry Submission Form */
                 <div>
                   <h2 className="text-xl font-bold text-slate-900 mb-1">
                     Request an Operations Consultation
                   </h2>
                   <p className="text-xs text-slate-500 mb-6">
-                    Fill out your requirements below to receive a customized BPO pod staffing plan inside your target budget.
+                    Fill out your requirements below to generate an inquiry with an automatic tracking Reference ID directed to our operations desk.
                   </p>
-
-                  {submitError && (
-                    <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-xs text-red-800 flex items-start gap-3">
-                      <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-                      <div className="flex-grow">
-                        <strong className="block font-bold mb-0.5">Submission Error</strong>
-                        <span>{submitError}</span>
-                        <div className="mt-2">
-                          <a
-                            href={createMailtoUrl('NJ-INQ-FALLBACK')}
-                            className="font-bold underline text-red-900 hover:text-red-950 inline-flex items-center gap-1"
-                          >
-                            <span>Open in your email client instead &rarr;</span>
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  )}
 
                   <form onSubmit={handleSubmit} noValidate className="space-y-4">
                     {/* Honeypot field for bot/spam trap (hidden from users) */}
@@ -571,26 +557,15 @@ ${formData.message || 'Not provided'}
                     <div className="pt-2">
                       <button
                         type="submit"
-                        disabled={isSubmitting}
-                        className={`w-full sm:w-auto px-8 py-3.5 text-xs font-bold uppercase tracking-wider text-white bg-blue-700 hover:bg-blue-800 rounded transition-colors shadow-xs cursor-pointer flex items-center justify-center gap-2 ${
-                          isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
-                        }`}
+                        className="w-full sm:w-auto px-8 py-3.5 text-xs font-bold uppercase tracking-wider text-white bg-blue-700 hover:bg-blue-800 rounded transition-colors shadow-xs cursor-pointer flex items-center justify-center gap-2"
                       >
-                        {isSubmitting ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Submitting Proposal Request...</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>Submit Operations Request</span>
-                            <ArrowRight className="w-4 h-4" />
-                          </>
-                        )}
+                        <Mail className="w-4 h-4" />
+                        <span>Send via Email</span>
+                        <ArrowRight className="w-4 h-4" />
                       </button>
 
                       <p className="text-[11px] text-slate-500 mt-3">
-                        Submissions are stored securely in our PostgreSQL operational ledger and immediately routed to our leadership desk at <strong className="text-slate-700">info@njuregroup.in</strong>.
+                        Clicking generates an automatic tracking Reference ID in the subject line and opens your email application prefilled directly to <strong className="text-slate-700">info@njuregroup.in</strong>.
                       </p>
                     </div>
                   </form>
