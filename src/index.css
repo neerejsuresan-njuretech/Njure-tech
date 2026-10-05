@@ -28,31 +28,3 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #94A3B8;
 }
-
-/* Sideways Marquee Animation for Client Ticker */
-@keyframes marquee-scroll-left {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-  100% {
-    transform: translate3d(-50%, 0, 0);
-  }
-}
-
-.animate-marquee-left {
-  display: flex;
-  width: max-content;
-  animation: marquee-scroll-left 40s linear infinite;
-  will-change: transform;
-}
-
-.animate-marquee-left:hover {
-  animation-play-state: paused;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-marquee-left {
-    animation: none;
-    overflow-x: auto;
-  }
-}
