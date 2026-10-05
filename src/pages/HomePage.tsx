@@ -24,6 +24,7 @@ import { COMPANY_INFO, DETAILED_SERVICES, SELECTED_CAPABILITIES, GENERAL_FAQS } 
 import { InteractiveBackground3D } from '../components/3d/InteractiveBackground3D';
 import { TiltCard } from '../components/motion/TiltCard';
 import { CountUpNumber } from '../components/motion/CountUpNumber';
+import { ClientMarquee } from '../components/ClientMarquee';
 
 export const HomePage: React.FC = () => {
   const [selectedCapabilityId, setSelectedCapabilityId] = useState<string>(SELECTED_CAPABILITIES[0].id);
@@ -424,6 +425,9 @@ export const HomePage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* CLIENT ECOSYSTEM MARQUEE (SIDEWAYS SCROLLING ANIMATION) */}
+      <ClientMarquee />
 
       {/* 6. CTA SECTION */}
       <section className="py-20 bg-slate-900 text-white relative overflow-hidden" aria-labelledby="cta-heading">
